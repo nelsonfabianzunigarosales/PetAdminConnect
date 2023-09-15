@@ -17,9 +17,11 @@ namespace PetAdminConnect.Shared.Entities
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public byte Age { get; set; }
 
+        [Display(Name = "Género Mascota")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public SharedEnums.GenderType GenderType { get; set; }
 
+        [Display(Name = "Talla Mascota")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public SharedEnums.SizeType SizeType { get; set; }
 
@@ -31,7 +33,8 @@ namespace PetAdminConnect.Shared.Entities
         [NotMapped]
         public string SizeTypeName => SharedEnums.SizeTypeName[SizeType];
 
-        
+        public int SpecieId { get; set; }
+
         public ICollection<Specie>? Species { get; set; }
     }
 }
