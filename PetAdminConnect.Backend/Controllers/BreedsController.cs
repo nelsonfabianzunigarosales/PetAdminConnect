@@ -4,6 +4,11 @@ using PetAdminConnect.Shared.Entities;
 
 namespace PetAdminConnect.Backend.Controllers
 {
-   
-    
+    [Route("api/[controller]")]
+    public class BreedsController : GenericController<Breed>
+    {
+        public BreedsController(IGenericUnitOfWork<Breed> unitOfWork) : base(unitOfWork)
+        {
+        }
+    }
 }
