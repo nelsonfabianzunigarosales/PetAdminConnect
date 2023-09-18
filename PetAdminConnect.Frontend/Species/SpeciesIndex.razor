@@ -1,0 +1,93 @@
+﻿@page "/species"
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Especies</h3>
+<GenericList MyList="species">
+    <NoRecords>
+        <p>Aun no hay especies registradas.</p>
+    </NoRecords>
+    <Body>
+        <a href="/specie/create" class="btn btn-primary">Nueva Especie</a>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Especie</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var specie in species!)
+                {
+                    <tr>
+                        <td>@specie.Name</td>
+                        <td>
+                            <a class="btn btn-warning btn-sm" href="/species/edit/@specie.Id">Editar</a>
+                            <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(specie))>Borrar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
+
+@code {
+    private List<Specie>? species;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var response = await repository.GetAsync<List<Specie>>("/api/Species");
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        species = response.Response;
+    }
+
+    private async Task DeleteAsync(Specie specie)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = $"¿Esta seguro que quieres borrar la especie: {specie.Name}?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+        
+        if (confirm)
+        {
+            return;
+        }
+
+        var response = await repository.DeleteAsync($"/api/species/{specie.Id}");
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await LoadAsync();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro borrado con éxito.");
+    }
+
+}
