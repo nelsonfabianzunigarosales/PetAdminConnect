@@ -20,6 +20,18 @@ builder.Services.AddTransient<SeedDb>();
 builder.Services.AddScoped<IApiService, ApiService>();
 
 var app = builder.Build();
+SeedData(app);
+
+void SeedData (WebApplication app) 
+{
+    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+    using (var scope = scopedFactory!.CreateScope()) 
+    {
+        var service = scope.ServiceProvider.GetService<SeedDb>();
+        service!.SeedAsync().Wait();
+    }
+}
+
 
 if (app.Environment.IsDevelopment())
 {

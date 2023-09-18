@@ -21,7 +21,8 @@ namespace PetAdminConnect.Backend.Data
         {
             await _context.Database.EnsureCreatedAsync();
             await CheckSpeciesAsync();
-            await CheckSpeciesAsync();
+            await CheckBreedsAsync();
+            await CheckCountriesAsync();
         }
 
         private async Task CheckSpeciesAsync()
