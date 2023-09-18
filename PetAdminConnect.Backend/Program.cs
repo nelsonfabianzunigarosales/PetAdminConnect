@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PetAdminConnect.Backend.Data;
 using PetAdminConnect.Backend.Intertfaces;
 using PetAdminConnect.Backend.Repositories;
+using PetAdminConnect.Backend.Services;
 using Sales.Backend.UnitsOfWork;
 using System.Text.Json.Serialization;
 
@@ -15,6 +16,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer("name=LocalConnection"));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped(typeof(IGenericUnitOfWork<>), typeof(GenericUnitOfWork<>));
+builder.Services.AddTransient<SeedDb>();
+builder.Services.AddScoped<IApiService, ApiService>();
 
 var app = builder.Build();
 
