@@ -5,7 +5,7 @@
 namespace PetAdminConnect.Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateDataBase : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -67,7 +67,7 @@ namespace PetAdminConnect.Backend.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(1500)", maxLength: 1500, nullable: true),
                     PetId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -108,7 +108,7 @@ namespace PetAdminConnect.Backend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
-                    SpecieId = table.Column<int>(type: "int", nullable: false)
+                    SpecieId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -117,8 +117,7 @@ namespace PetAdminConnect.Backend.Migrations
                         name: "FK_Breeds_Species_SpecieId",
                         column: x => x.SpecieId,
                         principalTable: "Species",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(

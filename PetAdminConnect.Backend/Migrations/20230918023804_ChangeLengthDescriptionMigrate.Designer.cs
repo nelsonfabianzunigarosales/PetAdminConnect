@@ -12,8 +12,8 @@ using PetAdminConnect.Backend.Data;
 namespace PetAdminConnect.Backend.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230915054154_CreateDataBase")]
-    partial class CreateDataBase
+    [Migration("20230918023804_ChangeLengthDescriptionMigrate")]
+    partial class ChangeLengthDescriptionMigrate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,7 +42,7 @@ namespace PetAdminConnect.Backend.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
-                    b.Property<int>("SpecieId")
+                    b.Property<int?>("SpecieId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -138,8 +138,8 @@ namespace PetAdminConnect.Backend.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -186,9 +186,7 @@ namespace PetAdminConnect.Backend.Migrations
                 {
                     b.HasOne("PetAdminConnect.Shared.Entities.Specie", "Specie")
                         .WithMany("Breeds")
-                        .HasForeignKey("SpecieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SpecieId");
 
                     b.Navigation("Specie");
                 });
