@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PetAdminConnect.Backend.Data;
 using PetAdminConnect.Backend.Intertfaces;
+using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 
 namespace PetAdminConnect.Backend.Controllers
@@ -10,33 +9,46 @@ namespace PetAdminConnect.Backend.Controllers
     [Route("api/[controller]")]
     public class CountriesController : GenericController<Country>
     {
-        private readonly DataContext _context;
+        private readonly IGenericUnitOfWork<Country> _unitOfWork;
 
-        public CountriesController(IGenericUnitOfWork<Country> unitOfWork, DataContext context) : base(unitOfWork)
+        public CountriesController(IGenericUnitOfWork<Country> unitOfWork) : base(unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
-        public override async Task<IActionResult> GetAsync()
+        public override async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            return Ok(await _context.Countries
-                .Include(c => c.States)
-                .ToListAsync());
+            var action = await _unitOfWork.GetEntityInclude(
+                "States", 
+                pagination, 
+                string.IsNullOrEmpty(pagination.Filter) ? null : x => x.Name.ToLower().Contains(pagination.Filter!), 
+                x => x.OrderBy(o => o.Name));
+
+            return Ok(action.Result);
         }
 
         [HttpGet("{id}")]
         public override async Task<IActionResult> GetAsync(int id)
         {
-            var country = await _context.Countries
-                .Include(c => c.States!)
-                .ThenInclude(s => s.Cities)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var action = await _unitOfWork.GetEntityInclude("States, States.Cities", null, x => x.Id == id, null);
+            var country = action.Result!.FirstOrDefault();
+
             if (country == null)
             {
                 return NotFound();
             }
-            return Ok(country);
+
+            return Ok(country);           
+        }
+
+        [HttpGet("totalPages")]
+        public override async Task<ActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        {
+            var action = await _unitOfWork.GetTotalPagesAsync(pagination,
+               string.IsNullOrEmpty(pagination.Filter) ? null : x => x.Name.ToLower().Contains(pagination.Filter!));
+
+            return Ok(action.Result);
         }
     }
 }

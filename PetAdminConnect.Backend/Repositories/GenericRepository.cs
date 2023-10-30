@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetAdminConnect.Backend.Data;
 using PetAdminConnect.Backend.Intertfaces;
+using PetAdminConnect.Shared.DTOs;
+using PetAdminConnect.Shared.Helpers;
 using PetAdminConnect.Shared.Responses;
+using System.Linq.Expressions;
 
 namespace PetAdminConnect.Backend.Repositories
 {
@@ -75,12 +78,16 @@ namespace PetAdminConnect.Backend.Repositories
             };
         }
 
-        public async Task<GenericResponse<IEnumerable<T>>> GetAsync()
+        public async Task<GenericResponse<IEnumerable<T>>> GetAsync(PaginationDTO pagination)
         {
+            var queryable = _entity.AsQueryable();
+
             return new GenericResponse<IEnumerable<T>>
             {
                 WasSuccess = true,
-                Result = await _entity.ToListAsync()
+                Result = await queryable
+                .Paginate(pagination)
+                .ToListAsync()
             };
         }
 
@@ -133,6 +140,66 @@ namespace PetAdminConnect.Backend.Repositories
                     Message = dbUpdateException.InnerException.Message
                 };
             }
+        }
+
+        public virtual async Task<Response<int>> GetTotalPagesAsync(
+            PaginationDTO pagination,
+            Expression<Func<T, bool>>? filter = null)
+        {
+            var queryable = _entity.AsQueryable();
+            
+            if (filter != null)
+            {
+                queryable = queryable.Where(filter);
+            }
+
+            double count = await queryable.CountAsync();
+            int totalPages = (int)Math.Ceiling(count / pagination.RecordsNumber);
+
+            return new Response<int>
+            {
+                WasSuccess = true,
+                Result = totalPages
+            };
+        }
+
+        public virtual async Task<Response<ICollection<T>>> GetEntityInclude(
+            string? include,
+            PaginationDTO? pagination,
+            Expression<Func<T, bool>>? filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null)
+        {
+            var query = _entity.AsQueryable();
+
+            if (!string.IsNullOrEmpty(include))
+            {
+                query = include
+               .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+               .Aggregate(query, (current, includeProperty) => current
+               .Include(includeProperty.Trim()));
+            }
+
+            if (filter != null)
+            {
+                query = query!.Where(filter);
+            }
+
+            if (orderBy != null)
+            {
+                query = orderBy?.Invoke(query);
+            }
+
+            if (pagination != null)
+            {
+                query = query!.Paginate(pagination);
+            }
+
+
+            return new Response<ICollection<T>>
+            {
+                WasSuccess = true,
+                Result = await query!.AsQueryable().ToListAsync()
+            };
         }
     }
 }

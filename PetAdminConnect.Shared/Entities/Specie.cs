@@ -16,5 +16,8 @@ namespace PetAdminConnect.Shared.Entities
         public string? Description { get; set; }
 
         public ICollection<Breed>? Breeds { get; set; }
+
+        [Display(Name = "Razas")]
+        public int BreedsNumber => Breeds == null ? 0 : Breeds.Count;
     }
 }

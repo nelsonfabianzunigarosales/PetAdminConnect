@@ -1,4 +1,4 @@
-﻿@page "/breeds/create"
+﻿@page "/breeds/create/{SpecieId:int}"
 @inject NavigationManager navigationManager
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
@@ -11,8 +11,12 @@
     private Breed breed = new();
     private BreedForm? breedForm;
 
+    [Parameter]
+    public int SpecieId { get; set; }
+
     private async Task CreateAsync()
     {
+        breed.SpecieId = SpecieId;
         var response = await repository.PostAsync("/api/breeds", breed);
         if (response.Error)
         {
@@ -34,6 +38,6 @@
     private void Return()
     {
         breedForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo("/breeds");
+        navigationManager.NavigateTo($"/species/details/{SpecieId}");
     }
 }

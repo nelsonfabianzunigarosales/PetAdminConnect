@@ -3,6 +3,11 @@
 @inject SweetAlertService sweetAlertService
 
 <h3>Especies</h3>
+
+<Pagination CurrentPage="currentPage"
+            TotalPages="totalPages"
+            SelectedPage="SelectedPageAsync" />
+
 <GenericList MyList="species">
     <NoRecords>
         <p>Aun no hay especies registradas.</p>
@@ -13,6 +18,7 @@
             <thead>
                 <tr>
                     <th>Especie</th>
+                    <th style="width:210px">Razas</th>
                     <th></th>
                 </tr>
             </thead>
@@ -20,7 +26,8 @@
                 @foreach (var specie in species!)
                 {
                     <tr>
-                        <td>@specie.Name</td>
+                        <td><a href="/species/details/@specie.Id">@specie.Name</a></td>
+                        <td>@specie.BreedsNumber</td>
                         <td>
                             <a class="btn btn-warning btn-sm" href="/species/edit/@specie.Id">Editar</a>
                             <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(specie))>Borrar</button>
@@ -34,23 +41,53 @@
 
 @code {
     private List<Specie>? species;
+    private int currentPage = 1;
+    private int totalPages;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
     }
 
-    private async Task LoadAsync()
+    private async Task LoadAsync(int page = 1)
     {
-        var response = await repository.GetAsync<List<Specie>>("/api/Species");
+        var ok = await LoadListAsync(page);
+        if (ok)
+        {
+            await LoadPagesAsync();
+        }
+    }
+
+    private async Task SelectedPageAsync(int page)
+    {
+        currentPage = page;
+        await LoadAsync(page);
+    }
+
+    private async Task<bool> LoadListAsync(int page)
+    {
+        var response = await repository.GetAsync<List<Specie>>($"/api/species?page={page}");
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return false;
+        }
+
+        species = response.Response;
+        return true;
+    }
+
+    private async Task LoadPagesAsync()
+    {
+        var response = await repository.GetAsync<int>("/api/species/totalPages");
         if (response.Error)
         {
             var message = await response.GetErrorMessageAsync();
             await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
             return;
         }
-
-        species = response.Response;
+        totalPages = response.Response;
     }
 
     private async Task DeleteAsync(Specie specie)

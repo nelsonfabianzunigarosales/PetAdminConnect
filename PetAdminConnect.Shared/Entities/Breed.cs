@@ -18,5 +18,6 @@ namespace PetAdminConnect.Shared.Entities
         public int? SpecieId { get; set; }
 
         public Specie? Specie { get; set; }
+
     }
 }

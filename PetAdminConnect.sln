@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PetAdminConnect.Shared", "PetAdminConnect.Shared\PetAdminConnect.Shared.csproj", "{A9A9F8EC-4FA0-421D-84F9-E1DBB39E8A10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PetAdminConnect.Shared", "PetAdminConnect.Shared\PetAdminConnect.Shared.csproj", "{A9A9F8EC-4FA0-421D-84F9-E1DBB39E8A10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PetAdminConnect.Frontend", "PetAdminConnect.Frontend\PetAdminConnect.Frontend.csproj", "{95A30C1F-EBBC-4DDD-9AC0-524448F3F6DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PetAdminConnect.Frontend", "PetAdminConnect.Frontend\PetAdminConnect.Frontend.csproj", "{95A30C1F-EBBC-4DDD-9AC0-524448F3F6DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PetAdminConnect.Backend", "PetAdminConnect.Backend\PetAdminConnect.Backend.csproj", "{0B491796-EC9D-4226-A88E-1B1A528E5C5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PetAdminConnect.Backend", "PetAdminConnect.Backend\PetAdminConnect.Backend.csproj", "{0B491796-EC9D-4226-A88E-1B1A528E5C5F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

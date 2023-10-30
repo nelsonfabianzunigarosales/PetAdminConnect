@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PetAdminConnect.Backend.Intertfaces;
+using PetAdminConnect.Shared.DTOs;
 
 namespace PetAdminConnect.Backend.Controllers
 {
@@ -15,14 +16,14 @@ namespace PetAdminConnect.Backend.Controllers
         }
 
         [HttpGet]
-        public virtual async Task<IActionResult> GetAsync()
+        public virtual async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var action = await _unitOfWork.GetAsync();
+            var action = await _unitOfWork.GetAsync(pagination);
             if (action.WasSuccess)
             {
                 return Ok(action.Result);
             }
-            return BadRequest(action.Message);
+            return NotFound();
         }
 
         [HttpGet("{id}")]
@@ -66,12 +67,24 @@ namespace PetAdminConnect.Backend.Controllers
             {
                 return NotFound();
             }
+            
             action = await _unitOfWork.DeleteAsync(id);
             if (!action.WasSuccess)
             {
                 return BadRequest(action.Message);
             }
             return NoContent();
+        }
+
+        [HttpGet("totalPages")]
+        public virtual async Task<ActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        {
+            var action = await _unitOfWork.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest(action.Message);
         }
     }
 }
