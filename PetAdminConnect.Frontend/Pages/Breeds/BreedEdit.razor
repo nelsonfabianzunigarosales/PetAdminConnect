@@ -64,6 +64,6 @@ else
     private void Return()
     {
         breedForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo("/breeds");
+        navigationManager.NavigateTo($"/species/details/{breed!.SpecieId}");
     }
 }

@@ -4,16 +4,19 @@
 
 <h3>Especies</h3>
 
+<FilterComponent NewEntityUrl="/specie/create"
+                 EntityName="Especie"
+                 BackButtonVisible=false
+                 OnFilterChanged="HandleFilterChanged"
+                 LoadAsyncParameter="LoadAsync"
+                 SelectedPage="SelectedPageAsync" />
+
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPageAsync" />
 
-<GenericList MyList="species">
-    <NoRecords>
-        <p>Aun no hay especies registradas.</p>
-    </NoRecords>
+<GenericList MyList="species!">
     <Body>
-        <a href="/specie/create" class="btn btn-primary">Nueva Especie</a>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -43,6 +46,7 @@
     private List<Specie>? species;
     private int currentPage = 1;
     private int totalPages;
+    private string filter = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,7 +70,13 @@
 
     private async Task<bool> LoadListAsync(int page)
     {
-        var response = await repository.GetAsync<List<Specie>>($"/api/species?page={page}");
+        var url = $"/api/species?page={page}";
+        if (!string.IsNullOrEmpty(filter))
+        {
+            url += $"&filter={filter}";
+        }
+
+        var response = await repository.GetAsync<List<Specie>>(url);
         if (response.Error)
         {
             var message = await response.GetErrorMessageAsync();
@@ -88,6 +98,14 @@
             return;
         }
         totalPages = response.Response;
+    }
+
+    private async Task HandleFilterChanged(string newFilter)
+    {
+        filter = newFilter; // Actualizar el filtro en el componente Countries
+        currentPage = 1;
+        await LoadAsync(); // Recargar la lista con el nuevo filtro
+        await SelectedPageAsync(currentPage); // Mantener la página actual después de cambiar el filtro
     }
 
     private async Task DeleteAsync(Specie specie)

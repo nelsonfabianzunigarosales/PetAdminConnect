@@ -10,10 +10,13 @@
 else
 {
     <h3>@country.Name</h3>
-    <div class="mb-2">
-        <a class="btn btn-primary" href="/states/create/@country.Id">Nuevo Estado/Departamento</a>
-        <a class="btn btn-success" href="/countries">Regresar</a>
-    </div>
+    <FilterComponent NewEntityUrl="@GetNewEntityUrl(country)"
+                     EntityName="Estado/Departamento"
+                     BackButtonVisible=true
+                     BackButtonUrl="/countries/"
+                     OnFilterChanged="HandleFilterChanged"
+                     LoadAsyncParameter="LoadAsync"
+                     SelectedPage="SelectedPageAsync" />
 
     <h4>Estados/Departamentos</h4>
 
@@ -35,7 +38,7 @@ else
                     @foreach (var state in states!)
                     {
                         <tr>
-                            <td><a href="/states/edit/@state.Id">@state.Name</a></td>
+                            <td><a href="/states/details/@state.Id">@state.Name</a></td>
                             <td>
                                 @state.CitiesNumber
                             </td>
@@ -56,6 +59,7 @@ else
     private List<State>? states;
     private int currentPage = 1;
     private int totalPages;
+    private string filter = string.Empty;
 
     [Parameter]
     public int CountryId { get; set; }
@@ -98,7 +102,12 @@ else
 
     private async Task<bool> LoadStatesAsync(int page)
     {
-        var response = await repository.GetAsync<List<State>>($"/api/states?id={CountryId}&page={page}");
+        var url = $"/api/states?id={CountryId}&page={page}";
+        if (!string.IsNullOrEmpty(filter))
+        {
+            url += $"&filter={filter}";
+        }
+        var response = await repository.GetAsync<List<State>>(url);
         if (response.Error)
         {
             var message = await response.GetErrorMessageAsync();
@@ -128,6 +137,18 @@ else
         return true;
     }
 
+    private async Task HandleFilterChanged(string newFilter)
+    {
+        filter = newFilter; // Actualizar el filtro en el componente Countries
+        currentPage = 1;
+        await LoadAsync(); // Recargar la lista con el nuevo filtro
+        await SelectedPageAsync(currentPage); // Mantener la página actual después de cambiar el filtro
+    }
+
+    private string GetNewEntityUrl(Country country)
+    {
+        return $"/states/create/{country.Id}";
+    }
 
     private async Task DeleteAsync(State state)
     {

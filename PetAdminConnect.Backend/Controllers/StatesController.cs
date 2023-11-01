@@ -25,8 +25,10 @@ namespace PetAdminConnect.Backend.Controllers
         {
             var action = await _unitOfWork.GetEntityInclude(
                 "Cities", 
-                pagination, 
-                x => x.CountryId == pagination.Id, 
+                pagination,
+                pagination.Filter == null ?
+                x => x.CountryId == pagination.Id :
+                x => x.CountryId == pagination.Id && x.Name.ToLower().Contains(pagination.Filter!), 
                 x => x.OrderBy(o => o.Name));
 
             return Ok(action.Result);
@@ -55,7 +57,7 @@ namespace PetAdminConnect.Backend.Controllers
         public override async Task<ActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
         {
             var action = await _unitOfWork.GetTotalPagesAsync(pagination, 
-                x => x.CountryId == pagination.Id);
+                x => x.CountryId == pagination.Id || x.Name.ToLower().Contains(pagination.Filter!));
             
             return Ok(action.Result);
         }

@@ -19,7 +19,11 @@ namespace PetAdminConnect.Backend.Controllers
         [HttpGet]
         public override async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var action = await _unitOfWork.GetEntityInclude("Breeds", pagination, null, x => x.OrderBy(o => o.Name));
+            var action = await _unitOfWork.GetEntityInclude(
+                "Breeds", 
+                pagination,
+                string.IsNullOrEmpty(pagination.Filter) ? null : x => x.Name.ToLower().Contains(pagination.Filter!),
+                x => x.OrderBy(o => o.Name));
 
             return Ok(action.Result);
         }

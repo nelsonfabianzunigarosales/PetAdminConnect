@@ -4,17 +4,23 @@
 
 <h3>Paises</h3>
 
+<FilterComponent 
+    NewEntityUrl="/countries/create" 
+    EntityName="País"
+    BackButtonVisible=false
+    OnFilterChanged="HandleFilterChanged"
+    LoadAsyncParameter="LoadAsync"
+    SelectedPage="SelectedPageAsync"/>
+
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPageAsync" />
 
-
 <GenericList MyList="countries">
     <NoRecords>
-        <p>Aun no hay paises registrados.</p>
+        <p>Aun no hay países registrados.</p>
     </NoRecords>
     <Body>
-        <a href="/countries/create" class="btn btn-primary">Nuevo País</a>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -44,7 +50,12 @@
     private List<Country>? countries;
     private int currentPage = 1;
     private int totalPages;
+    private string filter = string.Empty;
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Page { get; set; } = string.Empty;
+        
     protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
@@ -58,6 +69,11 @@
 
     private async Task LoadAsync(int page = 1)
     {
+        if (!string.IsNullOrWhiteSpace(Page))
+        {
+            page = Convert.ToInt32(Page);
+        }
+
         var ok = await LoadListAsync(page);
         if (ok)
         {
@@ -67,7 +83,14 @@
 
     private async Task<bool> LoadListAsync(int page)
     {
-        var response = await repository.GetAsync<List<Country>>($"/api/countries?page={page}");
+        var url = $"/api/countries?page={page}";
+        if (!string.IsNullOrEmpty(filter))
+        {
+            url += $"&filter={filter}";
+        }
+
+        var response = await repository.GetAsync<List<Country>>(url);
+
         if (response.Error)
         {
             var message = await response.GetErrorMessageAsync();
@@ -80,7 +103,14 @@
 
     private async Task LoadPagesAsync()
     {
-        var response = await repository.GetAsync<int>("/api/countries/totalPages");
+        var url = "/api/countries/totalPages";
+        if (!string.IsNullOrEmpty(filter))
+        {
+            url += $"?filter={filter}";
+        }
+
+        var response = await repository.GetAsync<int>(url);
+
         if (response.Error)
         {
             var message = await response.GetErrorMessageAsync();
@@ -90,12 +120,19 @@
         totalPages = response.Response;
     }
 
+    private async Task HandleFilterChanged(string newFilter)
+    {
+        filter = newFilter; // Actualizar el filtro en el componente Countries
+        await LoadAsync(); // Recargar la lista con el nuevo filtro
+        await SelectedPageAsync(currentPage); // Mantener la página actual después de cambiar el filtro
+    }
+
     private async Task DeleteAsync(Country country)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = $"¿Esta seguro que quieres borrar el país: {country.Name}?",
+                Text = $"¿Estás seguro que quieres borrar el país: {country.Name}?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -126,4 +163,3 @@
         await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro borrado con éxito.");
     }
 }
-

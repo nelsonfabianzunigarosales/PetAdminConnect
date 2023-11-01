@@ -10,10 +10,13 @@
 else
 {
     <h3>@specie.Name</h3>
-    <div class="mb-2">
-        <a class="btn btn-primary" href="/breeds/create/@specie.Id">Nueva Raza</a>
-        <a class="btn btn-success" href="/species">Regresar</a>
-    </div>
+    <FilterComponent NewEntityUrl="@GetNewEntityUrl(specie)"
+                     EntityName="Raza"
+                     BackButtonVisible=true
+                     BackButtonUrl="/species"
+                     OnFilterChanged="HandleFilterChanged"
+                     LoadAsyncParameter="LoadAsync"
+                     SelectedPage="SelectedPageAsync" />
 
     <h4>Razas</h4>
 
@@ -52,6 +55,7 @@ else
     private List<Breed>? breeds;
     private int currentPage = 1;
     private int totalPages;
+    private string filter = string.Empty;
 
     [Parameter]
     public int SpecieId { get; set; }
@@ -96,7 +100,13 @@ else
 
     private async Task<bool> LoadBreedsAsync(int page)
     {
-        var response = await repository.GetAsync<List<Breed>>($"/api/breeds?id={SpecieId}&page={page}");
+        var url = $"/api/breeds?id={SpecieId}&page={page}";
+        if (!string.IsNullOrEmpty(filter))
+        {
+            url += $"&filter={filter}";
+        }
+
+        var response = await repository.GetAsync<List<Breed>>(url);
         if (response.Error)
         {
             var message = await response.GetErrorMessageAsync();
@@ -124,6 +134,18 @@ else
         }
         specie = response.Response;
         return true;
+    }
+
+    private async Task HandleFilterChanged(string newFilter)
+    {
+        filter = newFilter; // Actualizar el filtro en el componente Countries
+        await LoadAsync(); // Recargar la lista con el nuevo filtro
+        await SelectedPageAsync(currentPage); // Mantener la página actual después de cambiar el filtro
+    }
+
+    private string GetNewEntityUrl(Specie specie)
+    {
+        return $"/breeds/create/{specie.Id}";
     }
 
     private async Task DeleteAsync(Breed breed)

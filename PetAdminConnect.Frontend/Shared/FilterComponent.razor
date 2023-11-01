@@ -1,0 +1,51 @@
+﻿<div class="mb-2" style="display: flex; flex-wrap:wrap; align-items: center;">
+    <div class="mx-2">
+        <a href="@NewEntityUrl" class="btn btn-primary">Registrar @EntityName</a>
+        <span></span>
+        @if (BackButtonVisible)
+        {
+            <a class="btn btn-success" href="@BackButtonUrl">Regresar</a>            
+        }
+    </div>    
+    <div class="mx-2">
+        <input style="width: 400px;" type="text" class="form-control" id="titulo" placeholder="Buscar @EntityName..." @bind-value="Filter" />
+    </div>
+    <button type="button" class="btn btn-outline-primary mx-1" @onclick="ApplyFilterAsync">Filtrar</button>
+    <button type="button" class="btn btn-outline-danger" @onclick="CleanFilterAsync">Limpiar</button>
+</div>
+
+@code {
+    [Parameter]
+    public string NewEntityUrl { get; set; } = null!;
+
+    [Parameter]
+    public string EntityName { get; set; } = null!;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Filter { get; set; } = null!;
+    
+    [Parameter]
+    public bool BackButtonVisible { get; set; }
+
+    [Parameter]
+    public string BackButtonUrl { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<string> OnFilterChanged { get; set; } 
+
+    [Parameter] public EventCallback<int> LoadAsyncParameter { get; set; }
+
+    [Parameter] public EventCallback<int> SelectedPage { get; set; }
+
+    private async Task CleanFilterAsync()
+    {
+        Filter = string.Empty;
+        await ApplyFilterAsync();
+    }
+
+    private async Task ApplyFilterAsync()
+    {
+        await OnFilterChanged.InvokeAsync(Filter); // Notificar al componente padre sobre el cambio de filtro
+    }
+}
