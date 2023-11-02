@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PetAdminConnect.Backend.Helpers;
 using PetAdminConnect.Backend.Services;
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
+using static PetAdminConnect.Shared.Enums.SharedEnums;
 
 namespace PetAdminConnect.Backend.Data
 {
@@ -9,11 +11,13 @@ namespace PetAdminConnect.Backend.Data
     {
         private readonly DataContext _context;
         private readonly IApiService _apiService;
+        private readonly IUserHelper _userHelper;
 
-        public SeedDb(DataContext context, IApiService apiService)
+        public SeedDb(DataContext context, IApiService apiService, IUserHelper userHelper)
         {
             _context = context;
             _apiService = apiService;
+            _userHelper = userHelper;
         }
 
 
@@ -22,6 +26,9 @@ namespace PetAdminConnect.Backend.Data
             await _context.Database.EnsureCreatedAsync();
             await CheckSpeciesAsync();
             await CheckCountriesAsync();
+            await CheckRolesAsync();
+            await CheckUserAsync("1010", "Admin", "VetAdminConnect", "adminvet@yopmail.com", "311 123 4567", "Calle 24", UserType.Admin);
+
         }
 
         private async Task CheckSpeciesAsync()
@@ -272,5 +279,38 @@ namespace PetAdminConnect.Backend.Data
                 }
             }
         }
+
+        private async Task<User> CheckUserAsync(string document, string firstName, string lastName, string email, string phone, string address, UserType userType)
+        {
+            var user = await _userHelper.GetUserAsync(email);
+            if (user == null)
+            {
+                user = new User
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Email = email,
+                    UserName = email,
+                    PhoneNumber = phone,
+                    Address = address,
+                    Document = document,
+                    City = _context.Cities.FirstOrDefault(),
+                    UserType = userType,
+                };
+
+                await _userHelper.AddUserAsync(user, "123456");
+                await _userHelper.AddUserToRoleAsync(user, userType.ToString());
+            }
+
+            return user;
+        }
+
+        private async Task CheckRolesAsync()
+        {
+            await _userHelper.CheckRoleAsync(UserType.Admin.ToString());
+            await _userHelper.CheckRoleAsync(UserType.User.ToString());
+            await _userHelper.CheckRoleAsync(UserType.Vet.ToString());
+        }
+
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace PetAdminConnect.Shared.Enums
+﻿using System.ComponentModel;
+
+namespace PetAdminConnect.Shared.Enums
 {
     public class SharedEnums
     {
@@ -15,6 +17,15 @@
             Medium,
             Large
         }
+
+        public enum UserType
+        {
+            Admin,
+
+            User,
+
+            Vet
+        }
         #endregion
 
         #region Dictionaries
@@ -30,6 +41,18 @@
             {SizeType.Medium, "Mediano" },
             {SizeType.Large, "Grande" }
         };
+
+        public static Dictionary<UserType, string> UserTypeName => new()
+        {
+            {UserType.Admin, "Administrador" },
+            {UserType.User, "Usuario" },
+            {UserType.Vet, "Veterinario" }
+        };
+
+
+
+
+
         #endregion
 
     }
