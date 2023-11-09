@@ -10,8 +10,8 @@
     <div class="mx-2">
         <input style="width: 400px;" type="text" class="form-control" id="titulo" placeholder="Buscar @EntityName..." @bind-value="Filter" />
     </div>
-    <button type="button" class="btn btn-outline-primary mx-1" @onclick="ApplyFilterAsync">Filtrar</button>
-    <button type="button" class="btn btn-outline-danger" @onclick="CleanFilterAsync">Limpiar</button>
+    <button type="button" class="btn btn-outline-primary mx-1" @onclick="ApplyFilterAsync"><i class="oi oi-layers" />Filtrar</button>
+    <button type="button" class="btn btn-outline-danger" @onclick="CleanFilterAsync"><i class="oi oi-ban" /> Limpiar</button>
 </div>
 
 @code {
