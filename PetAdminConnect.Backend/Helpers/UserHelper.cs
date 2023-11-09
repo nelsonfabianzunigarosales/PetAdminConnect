@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using PetAdminConnect.Backend.Intertfaces;
+using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 
 namespace PetAdminConnect.Backend.Helpers
@@ -9,12 +10,18 @@ namespace PetAdminConnect.Backend.Helpers
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUsersUnitOfWork _userUnitOfWork;
+        private readonly SignInManager<User> _signInManager;
 
-        public UserHelper(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IUsersUnitOfWork userUnitOfWork)
+        public UserHelper(
+            UserManager<User> userManager, 
+            RoleManager<IdentityRole> roleManager, 
+            IUsersUnitOfWork userUnitOfWork, 
+            SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _userUnitOfWork = userUnitOfWork;
+            _signInManager = signInManager;
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -49,5 +56,16 @@ namespace PetAdminConnect.Backend.Helpers
         {
             return await _userManager.IsInRoleAsync(user, roleName);
         }
+
+        public async Task<SignInResult> LoginAsync(LoginDTO model)
+        {
+            return await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+        }
+
+        public async Task LogoutAsync()
+        {
+            await _signInManager.SignOutAsync();
+        }
+
     }
 }

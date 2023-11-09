@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PetAdminConnect.Backend.Intertfaces;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
@@ -6,6 +8,7 @@ using PetAdminConnect.Shared.Entities;
 namespace PetAdminConnect.Backend.Controllers
 {
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     public class CountriesController : GenericController<Country>
     {
