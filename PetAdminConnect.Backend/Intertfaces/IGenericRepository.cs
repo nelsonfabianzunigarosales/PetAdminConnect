@@ -6,18 +6,17 @@ namespace PetAdminConnect.Backend.Intertfaces
 {
     public interface IGenericRepository<T> where T : class
     {
-        Task<GenericResponse<T>> GetAsync(int id);
+        Task<Response<T>> GetAsync(int id);
 
-        Task<GenericResponse<IEnumerable<T>>> GetAsync(PaginationDTO pagination);
+        Task<Response<IEnumerable<T>>> GetAsync(PaginationDTO pagination);
 
-        Task<GenericResponse<T>> AddAsync(T entity);
+        Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination);
 
-        Task<GenericResponse<T>> DeleteAsync(int id);
+        Task<Response<T>> AddAsync(T entity);
 
-        Task<GenericResponse<T>> UpdateAsync(T entity);
+        Task<Response<T>> DeleteAsync(int id);
 
-        Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination,
-            Expression<Func<T, bool>>? filter = null);
+        Task<Response<T>> UpdateAsync(T entity);
 
         Task<Response<ICollection<T>>> GetEntityInclude(
             string include, 

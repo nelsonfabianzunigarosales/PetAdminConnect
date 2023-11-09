@@ -19,21 +19,21 @@ namespace PetAdminConnect.Backend.Repositories
             _entity = context.Set<T>();
         }
 
-        public async Task<GenericResponse<T>> AddAsync(T entity)
+        public virtual async Task<Response<T>> AddAsync(T entity)
         {
             _context.Add(entity);
             try
             {
                 await _context.SaveChangesAsync();
-                return new GenericResponse<T>
+                return new Response<T>
                 {
                     WasSuccess = true,
                     Result = entity
                 };
             }
-            catch (DbUpdateException dbUpdateException)
+            catch (DbUpdateException)
             {
-                return DbUpdateExceptionResponse(dbUpdateException);
+                return DbUpdateExceptionResponse();
             }
             catch (Exception exception)
             {
@@ -41,71 +41,94 @@ namespace PetAdminConnect.Backend.Repositories
             }
         }
 
-        public async Task<GenericResponse<T>> DeleteAsync(int id)
+        public virtual async Task<Response<T>> DeleteAsync(int id)
         {
             var row = await _entity.FindAsync(id);
-            if (row != null)
+            if (row == null)
+            {
+                return new Response<T>
+                {
+                    WasSuccess = false,
+                    Message = "Registro no encontrado"
+                };
+            }
+
+            try
             {
                 _entity.Remove(row);
                 await _context.SaveChangesAsync();
-                return new GenericResponse<T>
+                return new Response<T>
                 {
                     WasSuccess = true,
                 };
             }
-            return new GenericResponse<T>
+            catch
             {
-                WasSuccess = false,
-                Message = "Registro no encontrado"
-            };
+                return new Response<T>
+                {
+                    WasSuccess = false,
+                    Message = "No se puede borrar, porque tiene registros relacionados"
+                };
+            }
         }
 
-        public async Task<GenericResponse<T>> GetAsync(int id)
+        public virtual async Task<Response<T>> GetAsync(int id)
         {
             var row = await _entity.FindAsync(id);
             if (row != null)
             {
-                return new GenericResponse<T>
+                return new Response<T>
                 {
                     WasSuccess = true,
                     Result = row
                 };
             }
-            return new GenericResponse<T>
+            return new Response<T>
             {
                 WasSuccess = false,
                 Message = "Registro no encontrado"
             };
         }
 
-        public async Task<GenericResponse<IEnumerable<T>>> GetAsync(PaginationDTO pagination)
+        public virtual async Task<Response<IEnumerable<T>>> GetAsync(PaginationDTO pagination)
         {
             var queryable = _entity.AsQueryable();
-
-            return new GenericResponse<IEnumerable<T>>
+            return new Response<IEnumerable<T>>
             {
                 WasSuccess = true,
                 Result = await queryable
-                .Paginate(pagination)
-                .ToListAsync()
+                    .Paginate(pagination)
+                    .ToListAsync()
             };
         }
 
-        public async Task<GenericResponse<T>> UpdateAsync(T entity)
+        public virtual async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination)
+        {
+            var queryable = _entity.AsQueryable();
+            double count = await queryable.CountAsync();
+            int totalPages = (int)Math.Ceiling(count / pagination.RecordsNumber);
+            return new Response<int>
+            {
+                WasSuccess = true,
+                Result = totalPages
+            };
+        }
+
+        public virtual async Task<Response<T>> UpdateAsync(T entity)
         {
             try
             {
                 _context.Update(entity);
                 await _context.SaveChangesAsync();
-                return new GenericResponse<T>
+                return new Response<T>
                 {
                     WasSuccess = true,
                     Result = entity
                 };
             }
-            catch (DbUpdateException dbUpdateException)
+            catch (DbUpdateException)
             {
-                return DbUpdateExceptionResponse(dbUpdateException);
+                return DbUpdateExceptionResponse();
             }
             catch (Exception exception)
             {
@@ -113,53 +136,21 @@ namespace PetAdminConnect.Backend.Repositories
             }
         }
 
-        private GenericResponse<T> ExceptionResponse(Exception exception)
+        private Response<T> ExceptionResponse(Exception exception)
         {
-            return new GenericResponse<T>
+            return new Response<T>
             {
                 WasSuccess = false,
                 Message = exception.Message
             };
         }
 
-        private GenericResponse<T> DbUpdateExceptionResponse(DbUpdateException dbUpdateException)
+        private Response<T> DbUpdateExceptionResponse()
         {
-            if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
+            return new Response<T>
             {
-                return new GenericResponse<T>
-                {
-                    WasSuccess = false,
-                    Message = "Ya existe el registro que estas intentando crear."
-                };
-            }
-            else
-            {
-                return new GenericResponse<T>
-                {
-                    WasSuccess = false,
-                    Message = dbUpdateException.InnerException.Message
-                };
-            }
-        }
-
-        public virtual async Task<Response<int>> GetTotalPagesAsync(
-            PaginationDTO pagination,
-            Expression<Func<T, bool>>? filter = null)
-        {
-            var queryable = _entity.AsQueryable();
-            
-            if (filter != null)
-            {
-                queryable = queryable.Where(filter);
-            }
-
-            double count = await queryable.CountAsync();
-            int totalPages = (int)Math.Ceiling(count / pagination.RecordsNumber);
-
-            return new Response<int>
-            {
-                WasSuccess = true,
-                Result = totalPages
+                WasSuccess = false,
+                Message = "Ya existe el registro que estas intentando crear."
             };
         }
 
@@ -193,7 +184,6 @@ namespace PetAdminConnect.Backend.Repositories
             {
                 query = query!.Paginate(pagination);
             }
-
 
             return new Response<ICollection<T>>
             {

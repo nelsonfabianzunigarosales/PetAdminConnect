@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PetAdminConnect.Backend.Intertfaces;
+using PetAdminConnect.Backend.UnitOfWork;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 
@@ -12,46 +13,45 @@ namespace PetAdminConnect.Backend.Controllers
     [Route("api/[controller]")]
     public class BreedsController : GenericController<Breed>
     {
-        private readonly IGenericUnitOfWork<Breed> _unitOfWork;
+        private readonly IBreedsUnitOfWork _breedsUnitOfWork;
 
-        public BreedsController(IGenericUnitOfWork<Breed> unitOfWork) : base(unitOfWork)
+        public BreedsController(IGenericUnitOfWork<Breed> unitOfWork, IBreedsUnitOfWork breedsUnitOfWork) : base(unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _breedsUnitOfWork = breedsUnitOfWork;
         }
 
         [HttpGet]
         public override async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var action = await _unitOfWork.GetEntityInclude(
-                string.Empty, 
-                pagination, 
-                x => x.SpecieId == pagination.Id || x.Name.ToLower().Contains(pagination.Filter!), 
-                x => x.OrderBy(o => o.Name));
-
-            return Ok(action.Result);
+            var response = await _breedsUnitOfWork.GetAsync(pagination);
+            if (response.WasSuccess)
+            {
+                return Ok(response.Result);
+            }
+            return BadRequest();
         }
 
         [HttpGet("{id}")]
         public override async Task<IActionResult> GetAsync(int id)
         {
-            var action = await _unitOfWork.GetEntityInclude("Specie", null, x => x.Id == id, null);
-            var breed = action.Result!.FirstOrDefault();
-
-            if (breed == null)
+            var response = await _breedsUnitOfWork.GetAsync(id);
+            if (response.WasSuccess)
             {
-                return NotFound();
+                return Ok(response.Result);
             }
-
-            return Ok(breed);
+            return NotFound(response.Message);
         }
 
         [HttpGet("totalPages")]
-        public override async Task<ActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        public override async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
         {
-            var action = await _unitOfWork.GetTotalPagesAsync(pagination,
-                x => x.SpecieId == pagination.Id || x.Name.ToLower().Contains(pagination.Filter!));
+            var action = await _breedsUnitOfWork.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest();
 
-            return Ok(action.Result);
         }
     }
 }

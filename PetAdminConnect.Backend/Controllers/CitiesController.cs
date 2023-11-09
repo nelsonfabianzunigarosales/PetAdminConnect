@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PetAdminConnect.Backend.Intertfaces;
+using PetAdminConnect.Backend.UnitOfWork;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 
@@ -12,34 +13,40 @@ namespace PetAdminConnect.Backend.Controllers
     [Route("api/[controller]")]
     public class CitiesController : GenericController<City>
     {
-        private readonly IGenericUnitOfWork<City> _unitOfWork;
+        private readonly ICitiesUnitOfWork _citiesUnitOfWork;
 
-        public CitiesController(IGenericUnitOfWork<City> unitOfWork ) : base(unitOfWork )
+        public CitiesController(IGenericUnitOfWork<City> unitOfWork, ICitiesUnitOfWork citiesUnitOfWork) : base(unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _citiesUnitOfWork = citiesUnitOfWork;
+        }
+
+        [AllowAnonymous]
+        [HttpGet("combo/{stateId:int}")]
+        public async Task<IActionResult> GetComboAsync(int stateId)
+        {
+            return Ok(await _citiesUnitOfWork.GetComboAsync(stateId));
         }
 
         [HttpGet]
-        public override async Task<IActionResult> GetAsync(PaginationDTO pagination)
+        public override async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var action = await _unitOfWork.GetEntityInclude(
-                string.Empty,
-                pagination,
-                pagination.Filter == null ?
-                x => x.StateId == pagination.Id :
-                x => x.StateId == pagination.Id && x.Name.ToLower().Contains(pagination.Filter!),
-                x => x.OrderBy(o => o.Name));
-
-            return Ok(action.Result);
+            var response = await _citiesUnitOfWork.GetAsync(pagination);
+            if (response.WasSuccess)
+            {
+                return Ok(response.Result);
+            }
+            return BadRequest();
         }
 
         [HttpGet("totalPages")]
-        public override async Task<ActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        public override async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
         {
-            var action = await _unitOfWork.GetTotalPagesAsync(pagination,
-                 x => x.State!.Id == pagination.Id || x.Name.ToLower().Contains(pagination.Filter!));
-
-            return Ok(action.Result);
+            var action = await _citiesUnitOfWork.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest();
         }
     }
 }

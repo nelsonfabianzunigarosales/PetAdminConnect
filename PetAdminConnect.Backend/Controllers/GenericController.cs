@@ -23,7 +23,18 @@ namespace PetAdminConnect.Backend.Controllers
             {
                 return Ok(action.Result);
             }
-            return NotFound();
+            return BadRequest();
+        }
+
+        [HttpGet("totalPages")]
+        public virtual async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        {
+            var action = await _unitOfWork.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest();
         }
 
         [HttpGet("{id}")]
@@ -67,24 +78,12 @@ namespace PetAdminConnect.Backend.Controllers
             {
                 return NotFound();
             }
-            
             action = await _unitOfWork.DeleteAsync(id);
             if (!action.WasSuccess)
             {
                 return BadRequest(action.Message);
             }
             return NoContent();
-        }
-
-        [HttpGet("totalPages")]
-        public virtual async Task<ActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
-        {
-            var action = await _unitOfWork.GetTotalPagesAsync(pagination);
-            if (action.WasSuccess)
-            {
-                return Ok(action.Result);
-            }
-            return BadRequest(action.Message);
         }
     }
 }

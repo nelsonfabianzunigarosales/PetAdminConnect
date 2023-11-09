@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PetAdminConnect.Backend.Intertfaces;
+using PetAdminConnect.Backend.UnitOfWork;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 
@@ -12,37 +13,44 @@ namespace PetAdminConnect.Backend.Controllers
     [Route("api/[controller]")]
     public class SpeciesController : GenericController<Specie>
     {
-        private readonly IGenericUnitOfWork<Specie> _unitOfWork;
+        private readonly ISpeciesUnitOfWork _speciesUnitOfWork;
 
-        public SpeciesController(IGenericUnitOfWork<Specie> unitOfWork) : base(unitOfWork)
+        public SpeciesController(IGenericUnitOfWork<Specie> unitOfWork, ISpeciesUnitOfWork breedsUnitOfWork) : base(unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _speciesUnitOfWork = breedsUnitOfWork;
         }
 
         [HttpGet]
         public override async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var action = await _unitOfWork.GetEntityInclude(
-                "Breeds", 
-                pagination,
-                string.IsNullOrEmpty(pagination.Filter) ? null : x => x.Name.ToLower().Contains(pagination.Filter!),
-                x => x.OrderBy(o => o.Name));
-
-            return Ok(action.Result);
+            var response = await _speciesUnitOfWork.GetAsync(pagination);
+            if (response.WasSuccess)
+            {
+                return Ok(response.Result);
+            }
+            return BadRequest();
         }
 
         [HttpGet("{id}")]
         public override async Task<IActionResult> GetAsync(int id)
         {
-            var action = await _unitOfWork.GetEntityInclude("Breeds", null, x => x.Id == id, null);
-            var specie = action.Result!.FirstOrDefault();
-
-            if (specie == null)
+            var response = await _speciesUnitOfWork.GetAsync(id);
+            if (response.WasSuccess)
             {
-                return NotFound();
+                return Ok(response.Result);
             }
+            return NotFound(response.Message);
+        }
 
-            return Ok(specie);
+        [HttpGet("totalPages")]
+        public override async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        {
+            var action = await _speciesUnitOfWork.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest();
         }
     }
 }
