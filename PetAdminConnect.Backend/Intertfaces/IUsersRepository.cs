@@ -1,4 +1,5 @@
-﻿using PetAdminConnect.Shared.Entities;
+﻿using Microsoft.AspNetCore.Identity;
+using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
 
 namespace PetAdminConnect.Backend.Intertfaces
@@ -7,5 +8,4 @@ namespace PetAdminConnect.Backend.Intertfaces
     {
         Task<Response<User>> GetAsync(string email);
     }
-
 }

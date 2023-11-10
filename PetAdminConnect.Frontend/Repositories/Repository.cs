@@ -85,5 +85,12 @@ namespace PetAdminConnect.Frontend.Repositories
 
             return new HttpResponseWrapper<TResponse>(default, !responseHttp.IsSuccessStatusCode, responseHttp);
         }
+
+        public async Task<HttpResponseWrapper<object>> GetAsync(string url)
+        {
+            var responseHTTP = await _httpClient.GetAsync($"https://localhost:44383{url}");
+            return new HttpResponseWrapper<object>(null, !responseHTTP.IsSuccessStatusCode, responseHTTP);
+        }
+
     }
 }

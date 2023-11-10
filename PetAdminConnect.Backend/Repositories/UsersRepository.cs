@@ -39,5 +39,4 @@ namespace PetAdminConnect.Backend.Repositories
             };
         }
     }
-
 }

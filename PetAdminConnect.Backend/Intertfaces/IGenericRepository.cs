@@ -23,6 +23,5 @@ namespace PetAdminConnect.Backend.Intertfaces
             PaginationDTO? pagination, 
             Expression<Func<T, bool>>? filter = null, 
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null);
-
     }
 }
