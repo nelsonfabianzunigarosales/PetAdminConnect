@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PetAdminConnect.Backend.Helpers;
+using PetAdminConnect.Backend.Intertfaces;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
@@ -20,14 +21,21 @@ namespace PetAdminConnect.Backend.Controllers
         private readonly IConfiguration _configuration;
         private readonly IFileStorage _fileStorage;
         private readonly IMailHelper _mailHelper;
+        private readonly IUsersRepository _usersRepository;
         private readonly string _container;
 
-        public AccountsController(IUserHelper userHelper, IConfiguration configuration, IFileStorage fileStorage, IMailHelper mailHelper)
+        public AccountsController(
+            IUserHelper userHelper, 
+            IConfiguration configuration, 
+            IFileStorage fileStorage, 
+            IMailHelper mailHelper,
+            IUsersRepository usersRepository)
         {
             _userHelper = userHelper;
             _configuration = configuration;
             _fileStorage = fileStorage;
             _mailHelper = mailHelper;
+            _usersRepository = usersRepository;
             _container = "users";
         }
 
@@ -284,5 +292,28 @@ namespace PetAdminConnect.Backend.Controllers
 
             return BadRequest(result.Errors.FirstOrDefault()!.Description);
         }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
+        {
+            var response = await _usersRepository.GetAsync(pagination);
+            if (response.WasSuccess)
+            {
+                return Ok(response.Result);
+            }
+            return BadRequest();
+        }
+
+        [HttpGet("totalPages")]
+        public async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        {
+            var action = await _usersRepository.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest();
+        }
+
     }
 }
