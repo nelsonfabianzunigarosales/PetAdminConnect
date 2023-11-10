@@ -10,13 +10,18 @@
 else
 {
     <h3>@country.Name</h3>
-    <FilterComponent NewEntityUrl="@GetNewEntityUrl(country)"
-                     EntityName="Estado/Departamento"
-                     BackButtonVisible=true
-                     BackButtonUrl="/countries/"
-                     OnFilterChanged="HandleFilterChanged"
-                     LoadAsyncParameter="LoadAsync"
-                     SelectedPage="SelectedPageAsync" />
+    <div class="mb-2" style="display: flex; flex-wrap:wrap;">
+        <div class="mx-2">
+            <a class="btn btn-success" href="/countries">Regresar</a>
+            <span></span>
+            <a class="btn btn-primary" @onclick=@(() => ShowModal())><i class="oi oi-plus"></i> Adicionar Estado/Departamento</a>
+        </div>
+        <div class="mx-2">
+            <FilterComponent EntityName="Estado/Departamento"
+                             OnFilterChanged="HandleFilterChanged"
+                             LoadAsyncParameter="LoadAsync" />
+        </div>
+    </div>
 
     <h4>Estados/Departamentos</h4>
 
@@ -43,8 +48,8 @@ else
                                 @state.CitiesNumber
                             </td>
                             <td>
-                                <a class="btn btn-warning btn-sm" href="/states/edit/@state.Id">Editar</a>
-                                <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(state))>Borrar</button>
+                                <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModal(state.Id, true))><i class="oi oi-pencil" />Editar</a>
+                                <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(state))><i class="oi oi-trash" />Borrar</button>
                             </td>
                         </tr>
                     }
@@ -63,10 +68,33 @@ else
 
     [Parameter]
     public int CountryId { get; set; }
+    
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
+    }
+
+    private async Task ShowModal(int id = 0, bool isEdit = false)
+    {
+        IModalReference modalReference;
+
+        if (isEdit)
+        {
+            modalReference = Modal.Show<StateEdit>(string.Empty, new ModalParameters().Add("StateId", id));
+        }
+        else
+        {
+            modalReference = Modal.Show<StateCreate>();
+        }
+
+        var result = await modalReference.Result;
+        if (result.Confirmed)
+        {
+            await LoadAsync();
+        }
     }
 
     private async Task SelectedPageAsync(int page)

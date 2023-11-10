@@ -229,7 +229,7 @@ else
             return;
         }
 
-        await LoginService.LoginAsync(responseHttp.Response!.Token);
+        await loginService.LoginAsync(responseHttp.Response!.Token);
 
         navigationManager.NavigateTo("/");
     }

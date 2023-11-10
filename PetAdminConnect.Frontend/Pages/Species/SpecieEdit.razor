@@ -1,4 +1,4 @@
-﻿@page "/species/edit/{Id:int}"
+﻿@page "/species/edit/{SpecieId:int}"
 @inject NavigationManager navigationManager
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
@@ -20,11 +20,11 @@ else
     private SpecieForm? specieForm;
 
     [Parameter]
-    public int Id { get; set; }
+    public int SpecieId { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        var response = await repository.GetAsync<Specie>($"/api/species/{Id}");
+        var response = await repository.GetAsync<Specie>($"/api/species/{SpecieId}");
         if (response.Error)
         {
             if (response.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)

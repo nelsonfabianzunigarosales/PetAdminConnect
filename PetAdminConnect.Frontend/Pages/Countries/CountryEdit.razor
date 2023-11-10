@@ -19,11 +19,11 @@ else
     private CountryForm? countryForm;
 
     [Parameter]
-    public int Id { get; set; }
+    public int CountryId { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        var response = await repository.GetAsync<Country>($"/api/countries/{Id}");
+        var response = await repository.GetAsync<Country>($"/api/countries/{CountryId}");
         if (response.Error)
         {
             if (response.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
