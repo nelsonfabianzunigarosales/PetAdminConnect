@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PetAdminConnect.Backend.Helpers;
 using PetAdminConnect.Shared.DTOs;
@@ -10,22 +12,81 @@ using System.Text;
 namespace PetAdminConnect.Backend.Controllers
 {
     [ApiController]
-    [Route("/api/accounts")]
+    [Route("api/[controller]")]
     public class AccountsController : ControllerBase
     {
         private readonly IUserHelper _userHelper;
         private readonly IConfiguration _configuration;
+        private readonly IFileStorage _fileStorage;
+        private readonly string _container;
 
-        public AccountsController(IUserHelper userHelper, IConfiguration configuration)
+        public AccountsController(IUserHelper userHelper, IConfiguration configuration, IFileStorage fileStorage)
         {
             _userHelper = userHelper;
             _configuration = configuration;
+            _fileStorage = fileStorage;
+            _container = "users";
         }
 
+        [HttpPut]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult> PutAsync(User user)
+        {
+            try
+            {
+                var currentUser = await _userHelper.GetUserAsync(User.Identity!.Name!);
+                if (currentUser == null)
+                {
+                    return NotFound();
+                }
+
+                if (!string.IsNullOrEmpty(user.Photo))
+                {
+                    var photoUser = Convert.FromBase64String(user.Photo);
+                    user.Photo = await _fileStorage.SaveFileAsync(photoUser, ".jpg", _container);
+                }
+
+                currentUser.Document = user.Document;
+                currentUser.FirstName = user.FirstName;
+                currentUser.LastName = user.LastName;
+                currentUser.Address = user.Address;
+                currentUser.PhoneNumber = user.PhoneNumber;
+                currentUser.Photo = !string.IsNullOrEmpty(user.Photo) && user.Photo != currentUser.Photo ? user.Photo : currentUser.Photo;
+                currentUser.CityId = user.CityId;
+
+                var result = await _userHelper.UpdateUserAsync(currentUser);
+                if (result.Succeeded)
+                {
+                    return NoContent();
+                }
+
+                return BadRequest(result.Errors.FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult> GetAsync()
+        {
+            return Ok(await _userHelper.GetUserAsync(User.Identity!.Name!));
+        }
+
+
         [HttpPost("CreateUser")]
-        public async Task<IActionResult> CreateUser([FromBody] UserDTO model)
+        public async Task<ActionResult> CreateUserAsync([FromBody] UserDTO model)
         {
             User user = model;
+
+            if (!string.IsNullOrEmpty(model.Photo))
+            {
+                var photoUser = Convert.FromBase64String(model.Photo);
+                model.Photo = await _fileStorage.SaveFileAsync(photoUser, ".jpg", _container);
+            }
+
             var result = await _userHelper.AddUserAsync(user, model.Password);
             if (result.Succeeded)
             {
@@ -37,7 +98,7 @@ namespace PetAdminConnect.Backend.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> LoginAsync([FromBody] LoginDTO model)
+        public async Task<ActionResult> LoginAsync([FromBody] LoginDTO model)
         {
             var result = await _userHelper.LoginAsync(model);
             if (result.Succeeded)
@@ -48,6 +109,7 @@ namespace PetAdminConnect.Backend.Controllers
 
             return BadRequest("Email o contraseña incorrectos.");
         }
+
 
         private TokenDTO BuildToken(User user)
         {
@@ -80,5 +142,4 @@ namespace PetAdminConnect.Backend.Controllers
             };
         }
     }
-
 }

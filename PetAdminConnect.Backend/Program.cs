@@ -12,6 +12,7 @@ using PetAdminConnect.Backend.Services;
 using PetAdminConnect.Backend.UnitOfWork;
 using PetAdminConnect.Backend.UnitsOfWork;
 using PetAdminConnect.Shared.Entities;
+using Sales.Backend.Helpers;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -76,6 +77,7 @@ builder.Services.AddScoped<IApiService, ApiService>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IUsersUnitOfWork, UsersUnitOfWork>();
 builder.Services.AddScoped<IUserHelper, UserHelper>();
+builder.Services.AddScoped<IFileStorage, FileStorage>();
 
 builder.Services.AddIdentity<User, IdentityRole>(x =>
 {

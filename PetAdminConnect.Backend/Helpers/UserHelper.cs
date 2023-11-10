@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using PetAdminConnect.Backend.Intertfaces;
+using Microsoft.EntityFrameworkCore;
+using PetAdminConnect.Backend.Data;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 
@@ -9,18 +10,14 @@ namespace PetAdminConnect.Backend.Helpers
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IUsersUnitOfWork _userUnitOfWork;
+        private readonly DataContext _context;
         private readonly SignInManager<User> _signInManager;
 
-        public UserHelper(
-            UserManager<User> userManager, 
-            RoleManager<IdentityRole> roleManager, 
-            IUsersUnitOfWork userUnitOfWork, 
-            SignInManager<User> signInManager)
+        public UserHelper(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, DataContext context, SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _userUnitOfWork = userUnitOfWork;
+            _context = context;
             _signInManager = signInManager;
         }
 
@@ -32,6 +29,11 @@ namespace PetAdminConnect.Backend.Helpers
         public async Task AddUserToRoleAsync(User user, string roleName)
         {
             await _userManager.AddToRoleAsync(user, roleName);
+        }
+
+        public async Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword)
+        {
+            return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
         }
 
         public async Task CheckRoleAsync(string roleName)
@@ -48,8 +50,22 @@ namespace PetAdminConnect.Backend.Helpers
 
         public async Task<User> GetUserAsync(string email)
         {
-            var action = await _userUnitOfWork.GetAsync(email);
-            return action.Result!;
+            var user = await _context.Users
+                .Include(u => u.City!)
+                .ThenInclude(c => c.State!)
+                .ThenInclude(s => s.Country)
+                .FirstOrDefaultAsync(x => x.Email == email);
+            return user!;
+        }
+
+        public async Task<User> GetUserAsync(Guid userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.City!)
+                .ThenInclude(c => c.State!)
+                .ThenInclude(s => s.Country)
+                .FirstOrDefaultAsync(x => x.Id == userId.ToString());
+            return user!;
         }
 
         public async Task<bool> IsUserInRoleAsync(User user, string roleName)
@@ -66,6 +82,9 @@ namespace PetAdminConnect.Backend.Helpers
         {
             await _signInManager.SignOutAsync();
         }
-
+        public async Task<IdentityResult> UpdateUserAsync(User user)
+        {
+            return await _userManager.UpdateAsync(user);
+        }
     }
 }
