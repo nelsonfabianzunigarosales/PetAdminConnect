@@ -14,10 +14,14 @@ namespace PetAdminConnect.Shared.Entities
         [Display(Name = "Descripcion Raza")]
         [MaxLength(150, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres.")]
         public string? Description { get; set; }
-
+        
+        [Display(Name = "Especie")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public int? SpecieId { get; set; }
 
         public Specie? Specie { get; set; }
+
+        public ICollection<Pet>? Pets { get; set; }
 
     }
 }

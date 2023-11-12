@@ -33,8 +33,22 @@ namespace PetAdminConnect.Shared.Entities
         [NotMapped]
         public string SizeTypeName => SharedEnums.SizeTypeName[SizeType];
 
+        [Display(Name = "Propietario")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
+        public int ClientId { get; set; }
+
+        public Client Client { get; set; } = null!;
+
+        [Display(Name = "Especie")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public int SpecieId { get; set; }
 
-        public ICollection<Specie>? Species { get; set; }
+        public Specie Specie { get; set; } = null!;
+        
+        [Display(Name = "Raza")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
+        public int BreedId { get; set; }
+
+        public Breed Breed { get; set; } = null!;
     }
 }

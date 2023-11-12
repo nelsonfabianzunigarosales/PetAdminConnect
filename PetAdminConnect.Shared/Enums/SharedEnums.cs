@@ -22,7 +22,7 @@ namespace PetAdminConnect.Shared.Enums
         {
             Admin,
 
-            User,
+            Client,
 
             Vet
         }
@@ -45,7 +45,7 @@ namespace PetAdminConnect.Shared.Enums
         public static Dictionary<UserType, string> UserTypeName => new()
         {
             {UserType.Admin, "Administrador" },
-            {UserType.User, "Usuario" },
+            {UserType.Client, "Cliente" },
             {UserType.Vet, "Veterinario" }
         };
 

@@ -1,20 +1,68 @@
-﻿<AuthorizeView>
-    <Authorized>
-        <span class="d-flex align-items-center">Hola, <a href="EditUser" class="nav-link btn btn-link">@context.User.Identity!.Name</a></span>
-        @if (!string.IsNullOrEmpty(photoUser))
-        {
-            <div class="mx-2">
-                <img src="@photoUser" width="50" height="50" style="border-radius:50%" />
-            </div>
-        }
+﻿<nav class="navbar bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand"></a>
+        <ul class="nav justify-content-end">
+            <AuthorizeView>
+                <Authorized>
+                    <span class="d-flex align-items-center">
+                        Hola, 
+                        <div class="dropdown">
+                            <a class="btn btn-link" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                @context.User.Identity!.Name
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a href="EditUser" class="dropdown-item">Editar Usuario</a>
+                                </li>
+                                <li>
+                                    <a href="Logout" class="dropdown-item">Cerrar Sesión</a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                    </span>
+                    @if (!string.IsNullOrEmpty(photoUser))
+                    {
+                        <div class="mx-2">
+                            <div class="dropdown">
+                                <a class="btn btn-link" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="@photoUser" width="50" height="50" style="border-radius:50%" />
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                    <a href="EditUser" class="dropdown-item">Editar Usuario</a>
+                                    </li>
+                                    <li>
+                                        <a href="Logout" class="dropdown-item">Cerrar Sesión</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                </Authorized>
+                <NotAuthorized>
+                    <li class="nav-item dropdown">
+                        <a class="dropdown-toggle btn btn-outline-success me-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Registro
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/clients/create" class="dropdown-item">Propietario</a></li>
+                            <li><a class="dropdown-item" href="#">Veterinario</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-primary me-2" aria-current="page" href="Login">Iniciar Sesión</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://docs.microsoft.com/aspnet/" target="_blank">Acerca de</a>
+                    </li>
+                </NotAuthorized>
+            </AuthorizeView>
+        </ul>
+    </div>
+</nav>
 
-        <a href="Logout" class="nav-link btn btn-link">Cerrar Sesión</a>
-    </Authorized>
-    <NotAuthorized>
-        <a href="Register" class="nav-link btn btn-link">Registro</a>
-        <a href="Login" class="nav-link btn btn-link">Iniciar Sesión</a>
-    </NotAuthorized>
-</AuthorizeView>
+
 @code{
     private string? photoUser;
 

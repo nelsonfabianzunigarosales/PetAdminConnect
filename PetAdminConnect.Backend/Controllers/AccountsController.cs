@@ -128,13 +128,17 @@ namespace PetAdminConnect.Backend.Controllers
             {
                 await _userHelper.AddUserToRoleAsync(user, user.UserType.ToString());
 
-                var response = await SendConfirmationEmailAsync(user);
-                if (response.WasSuccess)
-                {
-                    return NoContent();
-                }
+                var userProfile = await _userHelper.AddUserProfile(user);
 
-                return BadRequest(response.Message);
+                if (userProfile)
+                {
+                    var response = await SendConfirmationEmailAsync(user);
+                    if (response.WasSuccess)
+                    {
+                        return NoContent();
+                    }
+                    return BadRequest(response.Message);
+                }
             }
 
             return BadRequest(result.Errors.FirstOrDefault());

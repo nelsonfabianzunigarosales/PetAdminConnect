@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PetAdminConnect.Backend.Data;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
+using static PetAdminConnect.Shared.Enums.SharedEnums;
 
 namespace PetAdminConnect.Backend.Helpers
 {
@@ -106,6 +107,34 @@ namespace PetAdminConnect.Backend.Helpers
         public async Task<IdentityResult> ResetPasswordAsync(User user, string token, string password)
         {
             return await _userManager.ResetPasswordAsync(user, token, password);
+        }
+
+        public async Task<bool> AddUserProfile(User user)
+        {
+            switch (user.UserType)
+            {
+                case UserType.Admin:
+                    break;
+                case UserType.Client:
+                    var client = new Client()
+                    {
+                        Pets = new List<Pet>(),
+                        User = user
+                    };
+                    _context.Add(client);
+                    break;
+                case UserType.Vet:
+                    break;
+            }
+
+            var result = await _context.SaveChangesAsync();
+
+            if (result > 0)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

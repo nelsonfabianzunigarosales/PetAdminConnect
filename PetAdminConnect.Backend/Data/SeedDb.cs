@@ -317,7 +317,7 @@ namespace PetAdminConnect.Backend.Data
         private async Task CheckRolesAsync()
         {
             await _userHelper.CheckRoleAsync(UserType.Admin.ToString());
-            await _userHelper.CheckRoleAsync(UserType.User.ToString());
+            await _userHelper.CheckRoleAsync(UserType.Client.ToString());
             await _userHelper.CheckRoleAsync(UserType.Vet.ToString());
         }
 

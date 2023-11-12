@@ -1,0 +1,51 @@
+﻿<!-- UserDetails.razor -->
+@inherits ComponentBase
+<div class="mb-3">
+    <label>Nombres:</label>
+    <div>
+        <InputText class="form-control" @bind-Value="@UserDTO.FirstName" />
+        <ValidationMessage For="@(() => UserDTO.FirstName)" />
+    </div>
+</div>
+<div class="mb-3">
+    <label>Apellidos:</label>
+    <div>
+        <InputText class="form-control" @bind-Value="@UserDTO.LastName" />
+        <ValidationMessage For="@(() => UserDTO.LastName)" />
+    </div>
+</div>
+<div class="mb-3">
+    <label>Documento:</label>
+    <div>
+        <InputText class="form-control" @bind-Value="@UserDTO.Document" />
+        <ValidationMessage For="@(() => UserDTO.Document)" />
+    </div>
+</div>
+<div class="mb-3">
+    <label>Teléfono:</label>
+    <div>
+        <InputText class="form-control" @bind-Value="@UserDTO.PhoneNumber" />
+        <ValidationMessage For="@(() => UserDTO.PhoneNumber)" />
+    </div>
+</div>
+<div class="mb-3">
+    <label>Dirección:</label>
+    <div>
+        <InputText class="form-control" @bind-Value="@UserDTO.Address" />
+        <ValidationMessage For="@(() => UserDTO.Address)" />
+    </div>
+</div>
+<div class="mb-3">
+    <label>Email:</label>
+    <div>
+        <InputText class="form-control" @bind-Value="@UserDTO.Email" />
+        <ValidationMessage For="@(() => UserDTO.Email)" />
+    </div>
+</div>
+
+ @code {
+    
+    
+    [Parameter]
+    public UserDTO UserDTO { get; set; }
+}
