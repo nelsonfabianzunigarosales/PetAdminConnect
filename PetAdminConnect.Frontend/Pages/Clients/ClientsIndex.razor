@@ -1,0 +1,56 @@
+﻿@page "/client/{ClientId:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+@if (client is null)
+{
+    <Loading />
+}
+else
+{
+    <div class="container">
+        <ClientsInfoCard Client="@client" />
+        <ClientsTabsCard Client="@client" />
+    </div>
+}
+
+@code {
+    private Client client = null!;
+
+    [Parameter]
+    public int ClientId { get; set; }
+    
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+    
+    private async Task LoadAsync()
+    {
+        var ok = await LoadClientAsync();        
+    }
+
+    private async Task<bool> LoadClientAsync()
+    {
+        var response = await repository.GetAsync<Client>($"/api/clients/{ClientId}");
+        if (response.Error)
+        {
+            if (response.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                //navigationManager.NavigateTo("/countries");
+                return false;
+            }
+
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return false;
+        }
+        client = response.Response;
+        return true;
+    }
+    
+}

@@ -1,0 +1,32 @@
+﻿<!-- VeterinarianListTab.razor -->
+
+<GenericList MyList="lista">
+    <NoRecords>
+        <p>Aún no hay veterinarios registrados.</p>
+    </NoRecords>
+    <Body>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Especialidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var veterinarian in lista)
+                {
+                    <tr>
+                        <td>Nombre Veterinario @veterinarian</td>
+                        <td>Especialidad @veterinarian</td>
+                    </tr>
+                }
+            </tbody>
+        </table>       
+    </Body>
+</GenericList>
+
+@code {
+    private List<int> lista = new List<int> { 1, 2, 3, 4, 5 };
+    // Simulando datos de veterinarios, debes obtener estos datos desde tu backend
+}
+

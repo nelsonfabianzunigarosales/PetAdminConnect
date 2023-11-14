@@ -1,0 +1,39 @@
+﻿
+<div class="card">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <button class="nav-link @(currentTab == 0 ? "active" : "")" @onclick="(() => ChangeTab(0))">Gestionar Mascotas</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(currentTab == 1 ? "active" : "")" @onclick="(() => ChangeTab(1))">Agenda de Citas</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(currentTab == 2 ? "active" : "")" @onclick="(() => ChangeTab(2))">Listado de Veterinarios</button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade @(currentTab == 0 ? "show active" : "")" id="managePetsTab">
+            <ManagePetsTab Client="@Client" />
+        </div>
+        <div class="tab-pane fade @(currentTab == 1 ? "show active" : "")" id="appointmentCalendarTab">
+            <AppointmentCalendarTab />
+        </div>
+        <div class="tab-pane fade @(currentTab == 2 ? "show active" : "")" id="veterinarianListTab">
+            <VeterinarianListTab />
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public Client? Client { get; set; } 
+    
+    private int currentTab = 0;
+
+    private void ChangeTab(int tab)
+    {
+        currentTab = tab;
+    }
+}

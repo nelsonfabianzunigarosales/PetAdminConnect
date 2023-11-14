@@ -5,5 +5,6 @@ namespace PetAdminConnect.Backend.Repositories
 {
     public interface IClientsRepository
     {
+        Task<Response<Client>> GetAsync(int id);
     }
 }

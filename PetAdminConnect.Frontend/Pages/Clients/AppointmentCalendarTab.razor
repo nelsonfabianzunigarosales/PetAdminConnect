@@ -1,0 +1,35 @@
+﻿<!-- AppointmentCalendarTab.razor -->
+<GenericList MyList="Appointments">
+    <NoRecords>
+        <p>Aún no hay veterinarios registrados.</p>
+    </NoRecords>
+    <Body>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Especialidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var appointment in Appointments)
+                {
+                    <tr>
+                        <td>@DateTime.Now</td>
+                        <td>Nombre Veterinario</td>
+                        <td>Nombre Cita @appointment</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
+
+@code {
+    // Simulando datos de citas, debes obtener estos datos desde tu backend
+    private List<int> Appointments = new List<int>
+    {
+        1,2,3,4,5
+        // Agrega más citas según sea necesario
+    };
+}

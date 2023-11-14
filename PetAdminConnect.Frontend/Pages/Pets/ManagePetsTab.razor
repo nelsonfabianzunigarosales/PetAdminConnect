@@ -1,0 +1,57 @@
+﻿@if (Client is null)
+{
+    <Loading />
+}
+else
+{
+    <GenericList MyList="pets">
+        <NoRecords>
+            <p>No hay mascotas registradas.</p>
+        </NoRecords>
+        <Body>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Edad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pet in pets)
+                    {
+                        <tr>
+                            <td>@pet.Name</td>
+                            <td>@pet.Age</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </Body>
+    </GenericList>
+}
+
+
+@code {
+    [Parameter]
+    public Client? Client { get; set; }
+
+    private List<Pet>? pets;
+
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        LoadAsync();
+    }
+
+    private void LoadAsync()
+    {
+        LoadClientPets();
+    }
+
+    private void LoadClientPets()
+    {
+        pets = Client?.Pets.ToList();
+    }
+}

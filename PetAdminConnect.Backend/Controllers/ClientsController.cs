@@ -2,6 +2,7 @@
 using PetAdminConnect.Backend.Helpers;
 using PetAdminConnect.Backend.Intertfaces;
 using PetAdminConnect.Backend.UnitOfWork;
+using PetAdminConnect.Backend.UnitsOfWork;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
@@ -23,6 +24,17 @@ namespace PetAdminConnect.Backend.Controllers
             _unitOfWork = unitOfWork;
             _clientsUnitOfWork = clientsUnitOfWork;
             _container = "users";
+        }
+
+        [HttpGet("{id}")]
+        public override async Task<IActionResult> GetAsync(int id)
+        {
+            var response = await _clientsUnitOfWork.GetAsync(id);
+            if (response.WasSuccess)
+            {
+                return Ok(response.Result);
+            }
+            return NotFound(response.Message);
         }
     }
 }

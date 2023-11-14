@@ -1,0 +1,50 @@
+﻿<div class="card mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <!-- Lado izquierdo con la imagen y el botón para cambiar -->
+            <div class="position-relative text-center">
+                <div class="d-flex align-items-center justify-content-center" style="height: 100%">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxDpJf3p7LwhmK9Ur0Pf8RYCxAYPAhYoF3zq4w1Tg&s" alt="Foto del Cliente" class="img-fluid rounded-circle mb-3"  @onmouseover="OnMouseOver" @onmouseout="OnMouseOut" style="width: 60%; height: auto;" />
+                </div>
+                <div class="position-absolute top-50 start-50 translate-middle">
+                    <a class="btn btn-link text-decoration-none" style="color: @(iconColor != null ? iconColor : "inherit")">
+                        <i class="bi bi-camera" style="font-size: 24px;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <!-- Lado derecho con la información personal -->
+            <div class="card-body">
+                <h3 class="card-title">Información del Cliente</h3>
+                <p class="mb-2"><strong>Nombre:</strong> @Client.User.FullName</p>
+                <p class="mb-2"><strong>Dirección:</strong> @Client.User.Address</p>
+                <!-- Agrega más propiedades según sea necesario -->
+            </div>
+            <button class="btn btn-primary mb-3" @onclick="UpdateInfo">Actualizar Información</button>
+        </div>
+    </div>   
+</div>
+
+@code {
+    [Parameter]
+    public Client Client { get; set; }
+
+    private string iconColor = "white";
+
+    private void UpdateInfo()
+    {
+        // Lógica para actualizar la información del cliente
+        // Puedes abrir un modal, redirigir a una página de actualización, etc.
+    }
+        
+    private void OnMouseOver()
+    {
+        iconColor = "lightgray";
+    }
+
+    private void OnMouseOut()
+    {
+        iconColor = "white";
+    }
+}
