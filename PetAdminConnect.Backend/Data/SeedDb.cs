@@ -9,8 +9,8 @@ namespace PetAdminConnect.Backend.Data
 {
     public class SeedDb
     {
-        private readonly DataContext _context;
         private readonly IApiService _apiService;
+        private readonly DataContext _context;
         private readonly IUserHelper _userHelper;
 
         public SeedDb(DataContext context, IApiService apiService, IUserHelper userHelper)
@@ -20,7 +20,6 @@ namespace PetAdminConnect.Backend.Data
             _userHelper = userHelper;
         }
 
-
         public async Task SeedAsync()
         {
             await _context.Database.EnsureCreatedAsync();
@@ -29,6 +28,209 @@ namespace PetAdminConnect.Backend.Data
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Admin", "VetAdminConnect", "adminvet@yopmail.com", "311 123 4567", "Calle 24", UserType.Admin);
 
+            await CheckClientAsync();
+        }
+
+        private async Task<List<Client>> CheckClientAsync()
+        {
+            var clients = new List<Client>()
+            {
+                new Client
+                {
+                    User = new User
+                    {
+                        FirstName = "clientevet1",
+                        LastName = "vetadminconnect",
+                        Email = "clientevet1@yopmail.com",
+                        UserName = "clientevet1@yopmail.com",
+                        PhoneNumber = "321564897",
+                        Address = "Calle 135 Sur",
+                        Document = "1111",
+                        City = new City(),
+                        UserType = UserType.Client,
+                    },Pets = new List<Pet>()
+                },
+                new Client
+                {
+                    User = new User
+                    {
+                        FirstName = "clientevet2",
+                        LastName = "vetadminconnect",
+                        Email = "clientevet2@yopmail.com",
+                        UserName = "clientevet2@yopmail.com",
+                        PhoneNumber = "3115554477",
+                        Address = "Carrera 48",
+                        Document = "1212",
+                        City = new City(),
+                        UserType = UserType.Client,
+                    },Pets = new List<Pet>()
+                }
+            };
+
+            await RegisterClientsAsync(clients);
+
+            var petsList = new List<Pet>
+            {
+                new Pet
+                {
+                    Age = 2,
+                    BreedId = 5,
+                    GenderType = GenderType.Male,
+                    Name = "Toby",
+                    SizeType = SizeType.Medium,
+                    SpecieId = 1,
+                },
+                new Pet
+                {
+                    Age = 3,
+                    BreedId = 5,
+                    GenderType = GenderType.Female,
+                    Name = "Dana",
+                    SizeType = SizeType.Small,
+                    SpecieId = 1,
+                },
+                new Pet
+                {
+                    Age = 5,
+                    BreedId = 2,
+                    GenderType = GenderType.Male,
+                    Name = "Michi",
+                    SizeType = SizeType.Small,
+                    SpecieId = 1,
+                },
+                new Pet
+                {
+                    Age = 4,
+                    BreedId = 5,
+                    GenderType = GenderType.Male,
+                    Name = "Rocky",
+                    SizeType = SizeType.Large,
+                    SpecieId = 1,
+                }
+            };
+
+            await RegisterPetsAsync(clients, petsList);
+
+
+
+            return clients;
+        }
+
+        private async Task RegisterClientsAsync(List<Client> clients)
+        {
+            foreach (var client in clients)
+            {
+                var user = await _userHelper.GetUserAsync(client.User.Email!);
+
+                if (user == null)
+                {
+                    var city = await _context.Cities.FirstOrDefaultAsync(x => x.Name == "Medellín");
+
+                    if (city == null)
+                    {
+                        city = await _context.Cities.FirstOrDefaultAsync();
+                    }
+
+                    client.User.City = city;
+
+                    await _userHelper.AddUserAsync(client.User!, "123456");
+                    await _userHelper.AddUserProfile(client.User!);
+                    await _userHelper.AddUserToRoleAsync(client.User!, client.User!.UserType.ToString());
+                    var token = await _userHelper.GenerateEmailConfirmationTokenAsync(client.User);
+                    await _userHelper.ConfirmEmailAsync(client.User, token);
+                }
+            }
+        }
+
+        private async Task RegisterPetsAsync(List<Client> clients, List<Pet> petsList)
+        {
+            foreach (var client in clients)
+            {
+                var clientInDb = await _context.Clients.Include(c => c.Pets).FirstOrDefaultAsync(c => c.User.Email == client.User.Email);
+
+                if (clientInDb!.Pets.Any())
+                {
+                    foreach (var pet in petsList.Take(2))
+                    {
+                        clientInDb.Pets.Add(pet);
+                    }
+                    petsList.RemoveRange(0, 2);
+
+                    client.Pets = clientInDb.Pets;
+                }
+                else
+                {
+                    petsList.Clear();
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task CheckCountriesAsync()
+        {
+            if (!_context.Countries.Any())
+            {
+                var responseCountries = await _apiService.GetAsync<List<CountryResponse>>("/v1", "/countries");
+                if (responseCountries.WasSuccess)
+                {
+                    var countries = responseCountries.Result!;
+                    foreach (var countryResponse in countries)
+                    {
+                        var country = await _context.Countries.FirstOrDefaultAsync(c => c.Name == countryResponse.Name!)!;
+                        if (country == null)
+                        {
+                            country = new() { Name = countryResponse.Name!, States = new List<State>() };
+                            var responseStates = await _apiService.GetAsync<List<StateResponse>>("/v1", $"/countries/{countryResponse.Iso2}/states");
+                            if (responseStates.WasSuccess)
+                            {
+                                var states = responseStates.Result!;
+                                foreach (var stateResponse in states!)
+                                {
+                                    var state = country.States!.FirstOrDefault(s => s.Name == stateResponse.Name!)!;
+                                    if (state == null)
+                                    {
+                                        state = new() { Name = stateResponse.Name!, Cities = new List<City>() };
+                                        var responseCities = await _apiService.GetAsync<List<CityResponse>>("/v1", $"/countries/{countryResponse.Iso2}/states/{stateResponse.Iso2}/cities");
+                                        if (responseCities.WasSuccess)
+                                        {
+                                            var cities = responseCities.Result!;
+                                            foreach (var cityResponse in cities)
+                                            {
+                                                if (cityResponse.Name == "Mosfellsbær" || cityResponse.Name == "Șăulița")
+                                                {
+                                                    continue;
+                                                }
+                                                var city = state.Cities!.FirstOrDefault(c => c.Name == cityResponse.Name!)!;
+                                                if (city == null)
+                                                {
+                                                    state.Cities.Add(new City() { Name = cityResponse.Name! });
+                                                }
+                                            }
+                                        }
+                                        if (state.CitiesNumber > 0)
+                                        {
+                                            country.States.Add(state);
+                                        }
+                                    }
+                                }
+                            }
+                            if (country.StatesNumber > 0)
+                            {
+                                _context.Countries.Add(country);
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task CheckRolesAsync()
+        {
+            await _userHelper.CheckRoleAsync(UserType.Admin.ToString());
+            await _userHelper.CheckRoleAsync(UserType.Client.ToString());
+            await _userHelper.CheckRoleAsync(UserType.Vet.ToString());
         }
 
         private async Task CheckSpeciesAsync()
@@ -220,66 +422,6 @@ namespace PetAdminConnect.Backend.Data
             }
         }
 
-        private async Task CheckCountriesAsync()
-        {
-            if (!_context.Countries.Any())
-            {
-                var responseCountries = await _apiService.GetAsync<List<CountryResponse>>("/v1", "/countries");
-                if (responseCountries.WasSuccess)
-                {
-                    var countries = responseCountries.Result!;
-                    foreach (var countryResponse in countries)
-                    {
-                        var country = await _context.Countries.FirstOrDefaultAsync(c => c.Name == countryResponse.Name!)!;
-                        if (country == null)
-                        {
-                            country = new() { Name = countryResponse.Name!, States = new List<State>() };
-                            var responseStates = await _apiService.GetAsync<List<StateResponse>>("/v1", $"/countries/{countryResponse.Iso2}/states");
-                            if (responseStates.WasSuccess)
-                            {
-                                var states = responseStates.Result!;
-                                foreach (var stateResponse in states!)
-                                {
-                                    var state = country.States!.FirstOrDefault(s => s.Name == stateResponse.Name!)!;
-                                    if (state == null)
-                                    {
-                                        state = new() { Name = stateResponse.Name!, Cities = new List<City>() };
-                                        var responseCities = await _apiService.GetAsync<List<CityResponse>>("/v1", $"/countries/{countryResponse.Iso2}/states/{stateResponse.Iso2}/cities");
-                                        if (responseCities.WasSuccess)
-                                        {
-                                            var cities = responseCities.Result!;
-                                            foreach (var cityResponse in cities)
-                                            {
-                                                if (cityResponse.Name == "Mosfellsbær" || cityResponse.Name == "Șăulița")
-                                                {
-                                                    continue;
-                                                }
-                                                var city = state.Cities!.FirstOrDefault(c => c.Name == cityResponse.Name!)!;
-                                                if (city == null)
-                                                {
-                                                    state.Cities.Add(new City() { Name = cityResponse.Name! });
-                                                }
-                                            }
-                                        }
-                                        if (state.CitiesNumber > 0)
-                                        {
-                                            country.States.Add(state);
-                                        }
-                                    }
-                                }
-                            }
-                            if (country.StatesNumber > 0)
-                            {
-                                _context.Countries.Add(country);
-                                await _context.SaveChangesAsync();
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
-
         private async Task<User> CheckUserAsync(string document, string firstName, string lastName, string email, string phone, string address, UserType userType)
         {
             var user = await _userHelper.GetUserAsync(email);
@@ -313,13 +455,5 @@ namespace PetAdminConnect.Backend.Data
 
             return user;
         }
-
-        private async Task CheckRolesAsync()
-        {
-            await _userHelper.CheckRoleAsync(UserType.Admin.ToString());
-            await _userHelper.CheckRoleAsync(UserType.Client.ToString());
-            await _userHelper.CheckRoleAsync(UserType.Vet.ToString());
-        }
-
     }
 }

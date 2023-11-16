@@ -26,10 +26,10 @@ namespace PetAdminConnect.Backend.Controllers
             _container = "users";
         }
 
-        [HttpGet("{id}")]
-        public override async Task<IActionResult> GetAsync(int id)
+        [HttpGet("GetClient/{userId}")]
+        public async Task<IActionResult> GetClient(string userId)
         {
-            var response = await _clientsUnitOfWork.GetAsync(id);
+            var response = await _clientsUnitOfWork.GetAsync(userId);
             if (response.WasSuccess)
             {
                 return Ok(response.Result);

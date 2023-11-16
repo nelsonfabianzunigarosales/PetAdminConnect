@@ -1,57 +1,157 @@
-﻿@if (Client is null)
+﻿@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+@if (pets is null)
 {
     <Loading />
 }
 else
 {
-    <GenericList MyList="pets">
-        <NoRecords>
-            <p>No hay mascotas registradas.</p>
-        </NoRecords>
-        <Body>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Edad</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var pet in pets)
-                    {
+    <div class="mt-2 ">
+        <button class="btn btn-sm btn-primary position-static" type="submit"><i class="oi oi-check" /> Iniciar Sesión</button>
+    </div>
+    <div class="mt-2">
+        <GenericList MyList="pets">
+            <NoRecords>
+                <p>No hay mascotas registradas.</p>
+            </NoRecords>
+            <Body>
+                <table class="table table-striped">
+                    <thead>
                         <tr>
-                            <td>@pet.Name</td>
-                            <td>@pet.Age</td>
+                            <th>Nombre</th>
+                            <th>Edad</th>
+                            <th>Raza</th>
+                            <th></th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </Body>
-    </GenericList>
+                    </thead>
+                    <tbody>
+                        @foreach (var pet in pets)
+                        {
+                            <tr>
+                                <td>@pet.Name</td>
+                                <td>@pet.Age</td>
+                                <td>@pet.Breed.Name</td>
+                                <td>
+                                    <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModal(pet.Id, true))><i class="oi oi-pencil" />Editar</a>
+                                    <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(pet))><i class="oi oi-trash" />Borrar</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </Body>
+        </GenericList>
+    </div>
+    
 }
 
 
 @code {
     [Parameter]
-    public Client? Client { get; set; }
+    public int? ClientId { get; set; }
+    private int currentPage = 1;
+    private int totalPages;
+    private string filter = string.Empty;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Page { get; set; } = string.Empty;
 
     private List<Pet>? pets;
 
     [CascadingParameter]
     IModalService Modal { get; set; } = default!;
 
-    protected override void OnInitialized()
+     
+    protected override async Task OnInitializedAsync()
     {
-        LoadAsync();
+        await LoadAsync();
     }
 
-    private void LoadAsync()
+    private async Task LoadAsync(int page = 1)
     {
-        LoadClientPets();
+        if (!string.IsNullOrWhiteSpace(Page))
+        {
+            page = Convert.ToInt32(Page);
+        }
+
+        var ok = await LoadClientPets(page);
     }
 
-    private void LoadClientPets()
+    private async Task<bool> LoadClientPets(int page)
     {
-        pets = Client?.Pets.ToList();
+        var url = $"/api/pets?page={page}";
+        if (!string.IsNullOrEmpty(filter))
+        {
+            url += $"&filter={filter}";
+        }
+
+        var response = await repository.GetAsync<List<Pet>>(url);
+
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return false;
+        }
+        pets = response.Response;
+        return true;
+    }
+
+    private async Task ShowModal(int id = 0, bool isEdit = false)
+    {
+        IModalReference modalReference;
+
+        if (isEdit)
+        {
+            //modalReference = Modal.Show<PetEdit>(string.Empty, new ModalParameters().Add("PetId", id));
+        }
+        else
+        {
+            //modalReference = Modal.Show<PetCreate>();
+        }
+
+        // var result = await modalReference.Result;
+        // if (result.Confirmed)
+        // {
+        //     LoadAsync();
+        // }
+    }
+
+    private async Task DeleteAsync(Pet pet)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = $"¿Estás seguro que quieres borrar la mascota: {pet.Name}?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+        if (confirm)
+        {
+            return;
+        }
+
+        var response = await repository.DeleteAsync($"/api/pets/{pet.Id}");
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await LoadAsync();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro borrado con éxito.");
     }
 }

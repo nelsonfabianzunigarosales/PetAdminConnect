@@ -5,6 +5,6 @@ namespace PetAdminConnect.Backend.UnitOfWork
 {
     public interface IClientsUnitOfWork
     {
-        Task<Response<Client>> GetAsync(int id);
+        Task<Response<Client>> GetAsync(string id);
     }
 }

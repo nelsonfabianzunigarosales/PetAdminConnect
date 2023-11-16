@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetAdminConnect.Backend.Data;
+using PetAdminConnect.Backend.Migrations;
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
 
@@ -14,14 +15,15 @@ namespace PetAdminConnect.Backend.Repositories
             _context = context;
         }
 
-        public override async Task<Response<Client>> GetAsync(int id)
+        public async Task<Response<Client>> GetAsync(string id)
         {
-            var country = await _context.Clients
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var client = await _context.Clients
                  .Include(c => c.Pets!)
                  .Include(s => s.User!)
-                 .FirstOrDefaultAsync(c => c.Id == id);
+                 .FirstOrDefaultAsync(c => c.User.Id == user!.Id);
 
-            if (country == null)
+            if (client == null)
             {
                 return new Response<Client>
                 {
@@ -33,7 +35,7 @@ namespace PetAdminConnect.Backend.Repositories
             return new Response<Client>
             {
                 WasSuccess = true,
-                Result = country
+                Result = client
             };
         }
     }

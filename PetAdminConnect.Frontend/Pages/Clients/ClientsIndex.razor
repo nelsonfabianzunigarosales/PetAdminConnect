@@ -1,7 +1,9 @@
-﻿@page "/client/{ClientId:int}"
+﻿@page "/client"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 
 @if (client is null)
 {
@@ -17,18 +19,28 @@ else
 
 @code {
     private Client client = null!;
+    private ClaimsPrincipal? user;
 
-    [Parameter]
-    public int ClientId { get; set; }
-    
+    public string UserId { get; set; }
+
     [CascadingParameter]
     IModalService Modal { get; set; } = default!;
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; } = null!;
+
     protected override async Task OnInitializedAsync()
     {
+        var authenticationState = await AuthenticationStateTask;
+        var claims = authenticationState.User.Claims.ToList();
+        var userId = claims.FirstOrDefault(x => x.Type == "UserId");
+        if (userId is not null)
+        {
+            UserId = userId.Value;
+        }
         await LoadAsync();
     }
-    
+
     private async Task LoadAsync()
     {
         var ok = await LoadClientAsync();        
@@ -36,12 +48,12 @@ else
 
     private async Task<bool> LoadClientAsync()
     {
-        var response = await repository.GetAsync<Client>($"/api/clients/{ClientId}");
+        var response = await repository.GetAsync<Client>($"/api/clients/getclient/{UserId}");
         if (response.Error)
         {
             if (response.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
-                //navigationManager.NavigateTo("/countries");
+                navigationManager.NavigateTo("/");
                 return false;
             }
 
@@ -49,7 +61,7 @@ else
             await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
             return false;
         }
-        client = response.Response;
+        client = response.Response!;
         return true;
     }
     

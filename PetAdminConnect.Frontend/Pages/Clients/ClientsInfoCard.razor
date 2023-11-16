@@ -1,7 +1,6 @@
 ﻿<div class="card mb-4">
     <div class="row">
         <div class="col-md-4">
-            <!-- Lado izquierdo con la imagen y el botón para cambiar -->
             <div class="position-relative text-center">
                 <div class="d-flex align-items-center justify-content-center" style="height: 100%">
                     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxDpJf3p7LwhmK9Ur0Pf8RYCxAYPAhYoF3zq4w1Tg&s" alt="Foto del Cliente" class="img-fluid rounded-circle mb-3"  @onmouseover="OnMouseOver" @onmouseout="OnMouseOut" style="width: 60%; height: auto;" />
@@ -14,21 +13,21 @@
             </div>
         </div>
         <div class="col-md-8">
-            <!-- Lado derecho con la información personal -->
             <div class="card-body">
                 <h3 class="card-title">Información del Cliente</h3>
                 <p class="mb-2"><strong>Nombre:</strong> @Client.User.FullName</p>
-                <p class="mb-2"><strong>Dirección:</strong> @Client.User.Address</p>
-                <!-- Agrega más propiedades según sea necesario -->
+                <p class="mb-2"><strong>Email:</strong> @Client.User.Email</p>
             </div>
-            <button class="btn btn-primary mb-3" @onclick="UpdateInfo">Actualizar Información</button>
+            <div class="mx-2">
+                <a href="EditUser" class="btn btn-primary"><i class=""></i> Actualizar</a>
+            </div>
         </div>
     </div>   
 </div>
 
 @code {
     [Parameter]
-    public Client Client { get; set; }
+    public Client Client { get; set; } = null!;
 
     private string iconColor = "white";
 

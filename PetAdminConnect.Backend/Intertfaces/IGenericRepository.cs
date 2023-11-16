@@ -1,4 +1,5 @@
 ﻿using PetAdminConnect.Shared.DTOs;
+using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
 using System.Linq.Expressions;
 

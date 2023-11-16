@@ -16,7 +16,7 @@ namespace PetAdminConnect.Backend.UnitOfWork
             _clientsRepository = clientsRepository;
         }
 
-        public override async Task<Response<Client>> GetAsync(int id) => await _clientsRepository.GetAsync(id);
+        public async Task<Response<Client>> GetAsync(string id) => await _clientsRepository.GetAsync(id);
 
     }
 }

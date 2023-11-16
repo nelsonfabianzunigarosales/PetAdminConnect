@@ -65,6 +65,7 @@ builder.Services.AddScoped<ISpeciesRepository, SpeciesRepository>();
 builder.Services.AddScoped<IBreedsRepository, BreedsRepository>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
+builder.Services.AddScoped<IPetsRepository, PetsRepository>();
 
 builder.Services.AddScoped<IBreedsUnitOfWork, BreedsUnitOfWork>();
 builder.Services.AddScoped<ICitiesUnitOfWork, CitiesUnitOfWork>();
@@ -73,6 +74,7 @@ builder.Services.AddScoped<ISpeciesUnitOfWork, SpeciesUnitOfWork>();
 builder.Services.AddScoped<IStatesUnitOfWork, StatesUnitOfWork>();
 builder.Services.AddScoped<IUsersUnitOfWork, UsersUnitOfWork>();
 builder.Services.AddScoped<IClientsUnitOfWork, ClientsUnitOfWork>();
+builder.Services.AddScoped<IPetsUnitOfWork, PetsUnitOfWork>();
 
 builder.Services.AddTransient<SeedDb>();
 builder.Services.AddScoped<IApiService, ApiService>();

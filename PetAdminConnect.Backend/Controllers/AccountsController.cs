@@ -213,7 +213,8 @@ namespace PetAdminConnect.Backend.Controllers
                 new Claim("LastName", user.LastName),
                 new Claim("Address", user.Address),
                 new Claim("Photo", user.Photo ?? string.Empty),
-                new Claim("CityId", user.CityId.ToString())
+                new Claim("CityId", user.CityId.ToString()),
+                new Claim("UserId", user.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["jwtKey"]!));
