@@ -1,0 +1,93 @@
+﻿@page "/specialities"
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Especialidades</h3>
+<GenericList MyList="specialities">
+    <NoRecords>
+        <p>Aun no hay especialidades registradas.</p>
+    </NoRecords>
+    <Body>
+        <a href="/specialities/create" class="btn btn-primary">Nueva Especialidad</a>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Especialidad</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var breed in specialities!)
+                {
+                    <tr>
+                        <td>@breed.Name</td>
+                        <td>
+                            <a class="btn btn-warning btn-sm" href="/specialities/edit/@breed.Id">Editar</a>
+                            <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(breed))>Borrar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
+
+@code {
+    private List<Speciality>? specialities;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var response = await repository.GetAsync<List<Speciality>>("/api/specialities");
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        specialities = response.Response;
+    }
+
+    private async Task DeleteAsync(Speciality speciality)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = $"¿Esta seguro que quieres borrar la especialidad: {speciality.Name}?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        var response = await repository.DeleteAsync($"/api/specialities/{speciality.Id}");
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await LoadAsync();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro borrado con éxito.");
+    }
+
+}

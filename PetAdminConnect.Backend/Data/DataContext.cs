@@ -19,8 +19,8 @@ namespace PetAdminConnect.Backend.Data
         public DbSet<Breed> Breeds { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Vet> Vets { get; set; }
-        public DbSet<VetEspeciality> VetEspecialities { get; set; }
-        public DbSet<Especiality> Especialities { get; set; }
+        public DbSet<VetSpeciality> VetEspecialities { get; set; }
+        public DbSet<Speciality> Specialities { get; set; }
         public DbSet<AppointmentData> Appointments { get; set; }
 
 
@@ -43,23 +43,36 @@ namespace PetAdminConnect.Backend.Data
                 .HasForeignKey(p => p.BreedId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<VetEspeciality>()
-                .HasKey(ve => new { ve.VetId, ve.EspecialityId });
+            modelBuilder.Entity<VetSpeciality>()
+                .HasKey(ve => new { ve.VetId, ve.SpecialityId });
 
-            modelBuilder.Entity<VetEspeciality>()
+            modelBuilder.Entity<VetSpeciality>()
                 .HasOne(ve => ve.Vet)
                 .WithMany(v => v.VetEspecialities)
                 .HasForeignKey(ve => ve.VetId);
 
-            modelBuilder.Entity<VetEspeciality>()
-                .HasOne(ve => ve.Especiality)
+            modelBuilder.Entity<VetSpeciality>()
+                .HasOne(ve => ve.Speciality)
                 .WithMany(ev => ev.VetEspecialities)
-                .HasForeignKey(ve => ve.EspecialityId);
+                .HasForeignKey(ve => ve.SpecialityId);
 
             modelBuilder.Entity<AppointmentData>()
-               .HasOne(ad => ad.Vet)
-               .WithMany(v => v.Appointments)
-               .HasForeignKey(ad => ad.VetId);
+                .HasOne(a => a.Client)
+                .WithMany(c => c.Appointments)
+                .HasForeignKey(a => a.ClientId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<AppointmentData>()
+                .HasOne(a => a.Pet)
+                .WithMany(p => p.Appointments)
+                .HasForeignKey(a => a.PetId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AppointmentData>()
+                .HasOne(a => a.Vet)
+                .WithMany(v => v.Appointments)
+                .HasForeignKey(a => a.VetId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿
-
-namespace PetAdminConnect.Shared.DTOs
+﻿namespace PetAdminConnect.Shared.DTOs
 {
     public class ClientDTO : UserDTO
     {

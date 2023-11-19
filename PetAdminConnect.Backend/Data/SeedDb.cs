@@ -29,6 +29,7 @@ namespace PetAdminConnect.Backend.Data
             await CheckUserAsync("1010", "Admin", "VetAdminConnect", "adminvet@yopmail.com", "311 123 4567", "Calle 24", UserType.Admin);
 
             await CheckClientAsync();
+            await CheckSpecialities();
         }
 
         private async Task<List<Client>> CheckClientAsync()
@@ -416,6 +417,32 @@ namespace PetAdminConnect.Backend.Data
                     }
                 });
 
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task CheckSpecialities()
+        {
+            if (!_context.Specialities.Any())
+            {
+                _context.Specialities.AddRange(new List<Speciality>()
+                {
+                    new(){Name = "Cirugía", Description = "Se enfoca en la realización de procedimientos quirúrgicos en animales."},
+                    new(){Name = "Oncología", Description = "Se dedica al diagnóstico y tratamiento de tumores en animales."},
+                    new(){Name = "Fisioterapia", Description = "Se enfoca en la rehabilitación de animales que han sufrido lesiones o enfermedades."},
+                    new(){Name = "Rehabilitación", Description = "e dedica a la recuperación de animales que han sufrido lesiones o enfermedades."},
+                    new(){Name = "Diagnóstico por imágenes", Description = "Se enfoca en el uso de tecnología de imágenes para el diagnóstico de enfermedades en animales."},
+                    new(){Name = "Fauna", Description = "Se dedica al cuidado de animales salvajes."},
+                    new(){Name = "Neurología", Description = "Se enfoca en el diagnóstico y tratamiento de enfermedades neurológicas en animales."},
+                    new(){Name = "Nutrición", Description = "Se dedica al estudio de la nutrición animal y a la elaboración de dietas adecuadas para cada especie."},
+                    new(){Name = "Odontología", Description = "Se enfoca en el cuidado de la salud dental de los animales."},
+                    new(){Name = "Medicina felina", Description = "Se dedica al cuidado de los gatos."},
+                    new(){Name = "Traumatología", Description = "Se enfoca en el diagnóstico y tratamiento de lesiones en animales."},
+                    new(){Name = "Dermatología", Description = "Se dedica al diagnóstico y tratamiento de enfermedades de la piel en animales."},
+                    new(){Name = "Oftalmología", Description = "Se enfoca en el diagnóstico y tratamiento de enfermedades oculares en animales."},
+                    new(){Name = "Anestesiología", Description = "Se dedica a la administración de anestesia en animales durante procedimientos quirúrgicos."},
+                    new(){Name = "Cardiología", Description = "Se enfoca en el diagnóstico y tratamiento de enfermedades cardíacas en animales."},
+                });
                 await _context.SaveChangesAsync();
             }
         }
