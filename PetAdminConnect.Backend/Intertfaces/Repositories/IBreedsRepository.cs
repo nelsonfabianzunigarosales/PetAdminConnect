@@ -2,7 +2,7 @@
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
 
-namespace PetAdminConnect.Backend.Repositories
+namespace PetAdminConnect.Backend.Intertfaces.Repositories
 {
     public interface IBreedsRepository
     {

@@ -1,9 +1,9 @@
 ﻿using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
 
-namespace PetAdminConnect.Backend.Repositories
+namespace PetAdminConnect.Backend.Intertfaces.UnitOfWork
 {
-    public interface IVetsRepository
+    public interface IVetsUnitOfWork
     {
         Task<Response<Vet>> GetAsync(string id);
     }

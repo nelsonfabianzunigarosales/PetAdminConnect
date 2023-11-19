@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetAdminConnect.Backend.Data;
 using PetAdminConnect.Backend.Helpers;
-using PetAdminConnect.Backend.Intertfaces;
+using PetAdminConnect.Backend.Intertfaces.Repositories;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;

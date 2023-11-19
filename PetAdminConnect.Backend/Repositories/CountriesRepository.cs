@@ -4,6 +4,7 @@ using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Responses;
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Backend.Helpers;
+using PetAdminConnect.Backend.Intertfaces.Repositories;
 
 namespace PetAdminConnect.Backend.Repositories
 {

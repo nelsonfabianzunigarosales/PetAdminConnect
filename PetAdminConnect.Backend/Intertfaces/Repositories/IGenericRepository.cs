@@ -3,7 +3,7 @@ using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
 using System.Linq.Expressions;
 
-namespace PetAdminConnect.Backend.Intertfaces
+namespace PetAdminConnect.Backend.Intertfaces.Repositories
 {
     public interface IGenericRepository<T> where T : class
     {
@@ -20,9 +20,9 @@ namespace PetAdminConnect.Backend.Intertfaces
         Task<Response<T>> UpdateAsync(T entity);
 
         Task<Response<ICollection<T>>> GetEntityInclude(
-            string include, 
-            PaginationDTO? pagination, 
-            Expression<Func<T, bool>>? filter = null, 
+            string include,
+            PaginationDTO? pagination,
+            Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null);
     }
 }

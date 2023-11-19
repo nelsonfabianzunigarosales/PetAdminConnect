@@ -1,9 +1,8 @@
-﻿using PetAdminConnect.Backend.Repositories;
-using PetAdminConnect.Shared.DTOs;
+﻿using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
-using PetAdminConnect.Backend.Intertfaces;
-using PetAdminConnect.Backend.UnitsOfWork;
+using PetAdminConnect.Backend.Intertfaces.Repositories;
+using PetAdminConnect.Backend.Intertfaces.UnitOfWork;
 
 namespace PetAdminConnect.Backend.UnitOfWork
 {

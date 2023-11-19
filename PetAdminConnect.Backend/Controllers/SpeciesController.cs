@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PetAdminConnect.Backend.Intertfaces;
-using PetAdminConnect.Backend.UnitOfWork;
-using PetAdminConnect.Backend.UnitsOfWork;
+using PetAdminConnect.Backend.Intertfaces.UnitOfWork;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 

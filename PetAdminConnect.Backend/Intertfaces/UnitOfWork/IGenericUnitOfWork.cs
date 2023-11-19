@@ -2,7 +2,7 @@
 using PetAdminConnect.Shared.Responses;
 using System.Linq.Expressions;
 
-namespace PetAdminConnect.Backend.Intertfaces
+namespace PetAdminConnect.Backend.Intertfaces.UnitOfWork
 {
     public interface IGenericUnitOfWork<T> where T : class
     {

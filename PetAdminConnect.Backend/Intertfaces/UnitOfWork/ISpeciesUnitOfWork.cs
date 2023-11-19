@@ -2,9 +2,9 @@
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
 
-namespace PetAdminConnect.Backend.Repositories
+namespace PetAdminConnect.Backend.Intertfaces.UnitOfWork
 {
-    public interface ISpeciesRepository
+    public interface ISpeciesUnitOfWork
     {
         Task<Response<Specie>> GetAsync(int id);
         Task<Response<IEnumerable<Specie>>> GetAsync(PaginationDTO pagination);

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PetAdminConnect.Backend.Helpers;
-using PetAdminConnect.Backend.Intertfaces;
+using PetAdminConnect.Backend.Intertfaces.Repositories;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;

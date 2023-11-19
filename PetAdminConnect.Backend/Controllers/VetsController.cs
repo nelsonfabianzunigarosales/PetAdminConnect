@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PetAdminConnect.Backend.Intertfaces;
-using PetAdminConnect.Backend.UnitOfWork;
+using PetAdminConnect.Backend.Intertfaces.UnitOfWork;
 using PetAdminConnect.Shared.Entities;
 
 namespace PetAdminConnect.Backend.Controllers
