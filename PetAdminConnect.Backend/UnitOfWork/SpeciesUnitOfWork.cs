@@ -20,5 +20,7 @@ namespace PetAdminConnect.Backend.UnitOfWork
         public override async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination) => await _especiesRepository.GetTotalPagesAsync(pagination);
 
         public override async Task<Response<Specie>> GetAsync(int id) => await _especiesRepository.GetAsync(id);
+
+        public async Task<IEnumerable<Specie>> GetComboAsync() => await _especiesRepository.GetComboAsync();
     }
 }

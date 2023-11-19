@@ -1,0 +1,73 @@
+﻿@page "/pets/create/{clientId:int}"
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+@inject NavigationManager navigationManager
+@inject ILoginService loginService
+
+@if (loading)
+{
+    <Loading />
+}
+else
+{
+    <PetForm @ref="petForm" PetDTO="PetDTO" OnValidSubmit="CreatePetAsync" ReturnAction="Return" />
+}
+
+@code {
+    private PetDTO PetDTO = new();
+    private List<Specie>? species;
+    private List<Breed>? breeds;
+    private PetForm? petForm;
+    private ClientDTO clientDTO = new();
+    private string? imageUrl;
+    private bool loading;
+    
+    [CascadingParameter]
+    private BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter]
+    public int ClientId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        clientDTO.ClientId = ClientId;
+        if (!string.IsNullOrEmpty(clientDTO.Photo))
+        {
+            imageUrl = clientDTO.Photo;
+            clientDTO.Photo = null;
+        }
+
+    }
+
+    private async Task CreatePetAsync()
+    {
+        loading = true;
+        PetDTO.ClientId = clientDTO.ClientId;
+        var responseHttp = await repository.PostAsync<PetDTO>("/api/pets", PetDTO);
+        if (responseHttp.Error)
+        {
+            loading = false;
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        loading = false;
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
+        Return();
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro creado con éxito.");
+    }
+
+    private void Return()
+    {
+        petForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("client");
+    }
+}

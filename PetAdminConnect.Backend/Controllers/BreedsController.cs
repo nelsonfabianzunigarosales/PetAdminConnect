@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PetAdminConnect.Backend.Intertfaces;
 using PetAdminConnect.Backend.UnitOfWork;
+using PetAdminConnect.Backend.UnitsOfWork;
 using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 
@@ -52,6 +53,13 @@ namespace PetAdminConnect.Backend.Controllers
             }
             return BadRequest();
 
+        }
+
+        [AllowAnonymous]
+        [HttpGet("combo/{specieId:int}")]
+        public async Task<IActionResult> GetComboAsync(int specieId)
+        {
+            return Ok(await _breedsUnitOfWork.GetComboAsync(specieId));
         }
     }
 }

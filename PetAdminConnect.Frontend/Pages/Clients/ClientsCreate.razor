@@ -87,7 +87,7 @@ else
                             </div>
                         </div>
                         <div class="mb-3">
-                            <InputImg Label="Foto" ImageSelected="ImageSelected" ImageURL="@imageUrl" />
+                            <InputImg Label="Foto" ImageSelected="ImageSelected" ImageURL="@imageUrl" MaxWithImg="45" />
                         </div>
                     </div>
                 </div>
@@ -184,7 +184,7 @@ else
         loading = true;
         clientDTO.UserName = clientDTO.Email;
         clientDTO.UserType = UserType.Client;
-        var responseHttp = await repository.PostAsync<UserDTO>("/api/accounts/CreateUser", clientDTO);
+        var responseHttp = await repository.PostAsync<UserDTO>("/api/pets", clientDTO);
         if (responseHttp.Error)
         {
             loading = false;
@@ -194,7 +194,7 @@ else
         }
 
         loading = false;
-        await sweetAlertService.FireAsync("Confirmación", "Su cuenta ha sido creada con éxito. Se te ha enviado un correo electrónico con las instrucciones para activar tu usuario.", SweetAlertIcon.Info);
+        await sweetAlertService.FireAsync("Confirmación", "Su mascota ha sido creada con éxito. Se te ha enviado un correo electrónico con las instrucciones para activar tu usuario.", SweetAlertIcon.Info);
         navigationManager.NavigateTo("/");
     }
 }

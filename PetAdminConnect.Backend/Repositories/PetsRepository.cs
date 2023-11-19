@@ -37,7 +37,7 @@ namespace PetAdminConnect.Backend.Repositories
             {
                 WasSuccess = true,
                 Result = await queryable
-                    .OrderBy(c => c.Name)
+                    .OrderByDescending(c => c.Id)
                     .Paginate(pagination)
                     .ToListAsync()
             };

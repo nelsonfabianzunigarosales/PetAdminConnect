@@ -37,18 +37,20 @@ namespace PetAdminConnect.Shared.Entities
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public int ClientId { get; set; }
 
-        public Client Client { get; set; } = null!;
+        public Client? Client { get; set; }
 
         [Display(Name = "Especie")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public int SpecieId { get; set; }
 
-        public Specie Specie { get; set; } = null!;
+        public Specie? Specie { get; set; } = null!;
         
         [Display(Name = "Raza")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public int BreedId { get; set; }
 
-        public Breed Breed { get; set; } = null!;
+        public Breed? Breed { get; set; } = null!;
+
+        public ICollection<AppointmentData>? Appointments { get; set; } = null!;
     }
 }

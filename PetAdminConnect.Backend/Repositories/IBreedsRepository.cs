@@ -8,6 +8,7 @@ namespace PetAdminConnect.Backend.Repositories
     {
         Task<Response<Breed>> GetAsync(int id);
         Task<Response<IEnumerable<Breed>>> GetAsync(PaginationDTO pagination);
+        Task<IEnumerable<Breed>> GetComboAsync(int specieId);
         Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination);
     }
 }

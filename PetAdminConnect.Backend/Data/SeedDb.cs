@@ -126,10 +126,7 @@ namespace PetAdminConnect.Backend.Data
                 {
                     var city = await _context.Cities.FirstOrDefaultAsync(x => x.Name == "Medellín");
 
-                    if (city == null)
-                    {
-                        city = await _context.Cities.FirstOrDefaultAsync();
-                    }
+                    city ??= await _context.Cities.FirstOrDefaultAsync();
 
                     client.User.City = city;
 
@@ -148,7 +145,7 @@ namespace PetAdminConnect.Backend.Data
             {
                 var clientInDb = await _context.Clients.Include(c => c.Pets).FirstOrDefaultAsync(c => c.User.Email == client.User.Email);
 
-                if (clientInDb!.Pets.Any())
+                if (!clientInDb!.Pets.Any())
                 {
                     foreach (var pet in petsList.Take(2))
                     {
@@ -161,6 +158,7 @@ namespace PetAdminConnect.Backend.Data
                 else
                 {
                     petsList.Clear();
+                    return;
                 }
             }
 

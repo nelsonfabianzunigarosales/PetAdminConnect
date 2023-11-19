@@ -8,6 +8,7 @@ namespace PetAdminConnect.Backend.UnitOfWork
     {
         Task<Response<Specie>> GetAsync(int id);
         Task<Response<IEnumerable<Specie>>> GetAsync(PaginationDTO pagination);
+        Task<IEnumerable<Specie>> GetComboAsync();
         Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination);
     }
 }

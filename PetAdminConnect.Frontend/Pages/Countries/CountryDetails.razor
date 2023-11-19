@@ -87,7 +87,7 @@ else
         }
         else
         {
-            modalReference = Modal.Show<StateCreate>();
+            modalReference = Modal.Show<StateCreate>(string.Empty, new ModalParameters().Add("CountryId", CountryId));
         }
 
         var result = await modalReference.Result;

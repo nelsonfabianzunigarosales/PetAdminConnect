@@ -14,7 +14,7 @@
 
     <div class="tab-content">
         <div class="tab-pane fade @(currentTab == 0 ? "show active" : "")" id="managePetsTab">
-            <ManagePetsTab ClientId="@Client.Id" />
+            <ManagePetsTab ClientId="@Client!.Id" />
         </div>
         <div class="tab-pane fade @(currentTab == 1 ? "show active" : "")" id="appointmentCalendarTab">
             <AppointmentCalendarTab />

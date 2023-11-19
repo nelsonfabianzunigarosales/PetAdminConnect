@@ -85,7 +85,7 @@ else
         }
         else
         {
-            modalReference = Modal.Show<CityCreate>();
+            modalReference = Modal.Show<CityCreate>(string.Empty, new ModalParameters().Add("StateId", StateId));
         }
 
         var result = await modalReference.Result;
@@ -166,9 +166,9 @@ else
 
     private async Task HandleFilterChanged(string newFilter)
     {
-        filter = newFilter; // Actualizar el filtro en el componente Countries
-        await LoadAsync(); // Recargar la lista con el nuevo filtro
-        await SelectedPageAsync(currentPage); // Mantener la página actual después de cambiar el filtro
+        filter = newFilter; 
+        await LoadAsync(); 
+        await SelectedPageAsync(currentPage); 
     }
 
     private string GetNewEntityUrl(State state)

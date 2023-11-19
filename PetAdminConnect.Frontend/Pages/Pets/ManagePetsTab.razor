@@ -8,7 +8,7 @@
 else
 {
     <div class="mt-2 ">
-        <button class="btn btn-sm btn-primary position-static" type="submit"><i class="oi oi-check" /> Iniciar Sesión</button>
+        <button class="btn btn-sm btn-primary position-static" @onclick=@(() => ShowModal()) type="submit"><i class="oi oi-check")/> Iniciar Sesión</button>
     </div>
     <div class="mt-2">
         <GenericList MyList="pets">
@@ -63,7 +63,6 @@ else
     [CascadingParameter]
     IModalService Modal { get; set; } = default!;
 
-     
     protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
@@ -101,22 +100,22 @@ else
 
     private async Task ShowModal(int id = 0, bool isEdit = false)
     {
-        IModalReference modalReference;
+        IModalReference modalReference;   
 
         if (isEdit)
         {
-            //modalReference = Modal.Show<PetEdit>(string.Empty, new ModalParameters().Add("PetId", id));
+            modalReference = Modal.Show<PetEdit>(string.Empty, new ModalParameters().Add("PetId", id));
         }
         else
         {
-            //modalReference = Modal.Show<PetCreate>();
+            modalReference = Modal.Show<PetCreate>(string.Empty, new ModalParameters().Add("ClientId", ClientId!));
         }
 
-        // var result = await modalReference.Result;
-        // if (result.Confirmed)
-        // {
-        //     LoadAsync();
-        // }
+        var result = await modalReference.Result;
+        if (result.Confirmed)
+        {
+            await LoadAsync();
+        }
     }
 
     private async Task DeleteAsync(Pet pet)
@@ -153,5 +152,10 @@ else
                 Timer = 3000
             });
         await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro borrado con éxito.");
+    }
+
+    public async Task LoadComponent()
+    {
+        await LoadAsync();
     }
 }

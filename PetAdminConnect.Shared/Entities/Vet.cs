@@ -1,11 +1,11 @@
-﻿
-namespace PetAdminConnect.Shared.Entities
+﻿namespace PetAdminConnect.Shared.Entities
 {
-    public class Client
+    public class Vet
     {
         public int Id { get; set; }
         public User User { get; set; } = null!;
-        public ICollection<Pet> Pets { get; set; } = null!;
+        public ICollection<VetEspeciality> VetEspecialities { get; set; } = null!;
+
         public ICollection<AppointmentData> Appointments { get; set; } = null!;
     }
 }

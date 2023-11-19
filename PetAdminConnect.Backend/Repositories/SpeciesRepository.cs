@@ -75,5 +75,12 @@ namespace PetAdminConnect.Backend.Repositories
                 Result = breed
             };
         }
+
+        public async Task<IEnumerable<Specie>> GetComboAsync()
+        {
+            return await _context.Species
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+        }
     }
 }

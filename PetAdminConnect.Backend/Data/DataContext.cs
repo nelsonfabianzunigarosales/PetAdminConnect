@@ -18,6 +18,11 @@ namespace PetAdminConnect.Backend.Data
         public DbSet<Specie> Species { get; set; }
         public DbSet<Breed> Breeds { get; set; }
         public DbSet<Client> Clients { get; set; }
+        public DbSet<Vet> Vets { get; set; }
+        public DbSet<VetEspeciality> VetEspecialities { get; set; }
+        public DbSet<Especiality> Especialities { get; set; }
+        public DbSet<AppointmentData> Appointments { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,13 +35,31 @@ namespace PetAdminConnect.Backend.Data
                 .HasOne(p => p.Specie)
                 .WithMany(s => s.Pets)
                 .HasForeignKey(p => p.SpecieId)
-                .OnDelete(DeleteBehavior.Restrict); // Cambia a Restrict
+                .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<Pet>()
                 .HasOne(p => p.Breed)
                 .WithMany(b => b.Pets)
                 .HasForeignKey(p => p.BreedId)
-                .OnDelete(DeleteBehavior.Restrict); // Cambia a Restrict
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<VetEspeciality>()
+                .HasKey(ve => new { ve.VetId, ve.EspecialityId });
+
+            modelBuilder.Entity<VetEspeciality>()
+                .HasOne(ve => ve.Vet)
+                .WithMany(v => v.VetEspecialities)
+                .HasForeignKey(ve => ve.VetId);
+
+            modelBuilder.Entity<VetEspeciality>()
+                .HasOne(ve => ve.Especiality)
+                .WithMany(ev => ev.VetEspecialities)
+                .HasForeignKey(ve => ve.EspecialityId);
+
+            modelBuilder.Entity<AppointmentData>()
+               .HasOne(ad => ad.Vet)
+               .WithMany(v => v.Appointments)
+               .HasForeignKey(ad => ad.VetId);
         }
     }
 }
