@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetAdminConnect.Backend.Data;
 using PetAdminConnect.Backend.Intertfaces.Repositories;
+using PetAdminConnect.Shared.DTOs;
 using PetAdminConnect.Shared.Entities;
 using PetAdminConnect.Shared.Responses;
 
@@ -13,6 +14,33 @@ namespace PetAdminConnect.Backend.Repositories
         public VetsRepository(DataContext context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task<Response<Vet>> AddAsync(VetDTO entity)
+        {
+            var vet = new Vet()
+            {
+                User = entity
+            };
+
+            var vetSpecialities = entity.VetSpecialities.Select(specialityId => new VetSpeciality
+            {
+                Vet = vet,
+                SpecialityId = specialityId.SpecialityId
+            }).ToList();
+
+            // Asigna las nuevas instancias de VetSpeciality a la colección VetEspecialities del veterinario
+            vet.VetEspecialities = vetSpecialities;
+
+            // Agrega el veterinario y sus especialidades a la base de datos
+            _context.Vets.Add(vet);
+            await _context.SaveChangesAsync();
+
+            return new Response<Vet>
+            {
+                WasSuccess = true,
+                Result = vet
+            };
         }
 
         public async Task<Response<Vet>> GetAsync(string id)
@@ -28,7 +56,7 @@ namespace PetAdminConnect.Backend.Repositories
                 return new Response<Vet>
                 {
                     WasSuccess = false,
-                    Message = "Cliente no existe"
+                    Message = "Veterinario no existe"
                 };
             }
 

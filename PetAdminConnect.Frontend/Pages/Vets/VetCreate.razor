@@ -1,4 +1,4 @@
-﻿@page "/clients/create"
+﻿@page "/vets/create"
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
 @inject NavigationManager navigationManager
@@ -10,13 +10,13 @@
 }
 else
 {
-    <EditForm Model="vetDTO" OnValidSubmit="CreteUserAsync">
+    <EditForm Model="vetDTO" OnInvalidSubmit="ValidateSpecialities" OnValidSubmit="CreteUserAsync">
         <DataAnnotationsValidator />
 
         <div class="card">
             <div class="card-header">
                 <span>
-                    <i class="oi oi-person" /> Registrar Nuevo  CLiente
+                    <i class="oi oi-person" /> Registrar Nuevo Veterinario
                     <button class="btn btn-sm btn-primary float-end" type="submit"><i class="oi oi-check" /> Registrar</button>
                 </span>
             </div>
@@ -24,6 +24,15 @@ else
                 <div class="row">
                     <div class="col-6">
                         <UserFields UserDTO="@vetDTO" />
+                        <div class="mb-1">
+                            <label>Especialidad:</label>
+                            <SfMultiSelect @ref="MultiSelectObj" TValue="List<Speciality>" TItem="Speciality" DataSource="@specialities"
+                                               ShowDropDownIcon="true"
+                                               Mode="@VisualMode.Box">
+                                    <MultiSelectFieldSettings Text="Name" Value="Id"></MultiSelectFieldSettings>
+                                </SfMultiSelect>
+                            <p style="color:red;">@validationMessage</p>
+                        </div>
                     </div>
                     <div class="col-6">
                         <div class="mb-3">
@@ -97,22 +106,47 @@ else
 }
 
 @code {
+
     private VetDTO vetDTO = new();
     private List<Country>? countries;
     private List<State>? states;
     private List<City>? cities;
+    private List<Speciality>? specialities;
     private string? imageUrl;
     private bool loading;
+    private SfMultiSelect<List<Speciality>, Speciality>? MultiSelectObj = new SfMultiSelect<List<Speciality>, Speciality>();
+    string validationMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadCountriesAsync();
+        await LoadSpecialitiesAsync();
 
         if (!string.IsNullOrEmpty(vetDTO.Photo))
         {
             imageUrl = vetDTO.Photo;
             vetDTO.Photo = null;
         }
+    }
+
+    private async Task LoadSpecialitiesAsync()
+    {
+        loading = true;
+        var responseHttp = await repository.GetAsync<List<Speciality>>("/api/specialities/combo");
+        if (responseHttp.Error)
+        {
+            loading = false;
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        specialities = responseHttp.Response;
+        loading = false;
+    }
+
+    private async Task SelectedSpecialities()
+    {
 
     }
 
@@ -182,9 +216,12 @@ else
     private async Task CreteUserAsync()
     {
         loading = true;
+        validationMessage = string.Empty;
+        
+        
         vetDTO.UserName = vetDTO.Email;
-        vetDTO.UserType = UserType.Client;
-        var responseHttp = await repository.PostAsync<UserDTO>("/api/pets", vetDTO);
+        vetDTO.UserType = UserType.Vet;
+        var responseHttp = await repository.PostAsync<VetDTO>("/api/vets", vetDTO);
         if (responseHttp.Error)
         {
             loading = false;
@@ -196,5 +233,23 @@ else
         loading = false;
         await sweetAlertService.FireAsync("Confirmación", "Su cuenta ha sido creada con éxito. Se te ha enviado un correo electrónico con las instrucciones para activar tu usuario.", SweetAlertIcon.Info);
         navigationManager.NavigateTo("/");
+    }
+
+    private void ValidateSpecialities()
+    {
+        var specialitiesSelected = MultiSelectObj!.Value;
+
+        if (specialitiesSelected == null || !specialitiesSelected.Any())
+        {
+            validationMessage = "Debes seleccionar al menos una especialidad.";
+            return;
+        }
+
+        validationMessage = string.Empty;
+
+        vetDTO.VetSpecialities = specialitiesSelected.Select(x => new VetSpecialityDTO()
+            {
+                SpecialityId = x.Id
+            }).ToList();
     }
 }
