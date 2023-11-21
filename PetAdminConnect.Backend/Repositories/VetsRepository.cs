@@ -30,7 +30,7 @@ namespace PetAdminConnect.Backend.Repositories
             }).ToList();
 
             // Asigna las nuevas instancias de VetSpeciality a la colección VetEspecialities del veterinario
-            vet.VetEspecialities = vetSpecialities;
+            vet.VetSpecialities = vetSpecialities;
 
             // Agrega el veterinario y sus especialidades a la base de datos
             _context.Vets.Add(vet);
@@ -47,7 +47,8 @@ namespace PetAdminConnect.Backend.Repositories
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
             var vet = await _context.Vets
-                 .Include(c => c.VetEspecialities!)
+                 .Include(c => c.VetSpecialities!)
+                 .ThenInclude(s => s.Speciality)
                  .Include(s => s.Appointments!)
                  .FirstOrDefaultAsync(c => c.User.Id == user!.Id);
 

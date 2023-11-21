@@ -48,12 +48,12 @@ namespace PetAdminConnect.Backend.Data
 
             modelBuilder.Entity<VetSpeciality>()
                 .HasOne(ve => ve.Vet)
-                .WithMany(v => v.VetEspecialities)
+                .WithMany(v => v.VetSpecialities)
                 .HasForeignKey(ve => ve.VetId);
 
             modelBuilder.Entity<VetSpeciality>()
                 .HasOne(ve => ve.Speciality)
-                .WithMany(ev => ev.VetEspecialities)
+                .WithMany(ev => ev.VetSpecialities)
                 .HasForeignKey(ve => ve.SpecialityId);
 
             modelBuilder.Entity<AppointmentData>()

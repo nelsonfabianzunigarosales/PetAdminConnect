@@ -1,0 +1,94 @@
+﻿@page "/vet"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+@if (false)
+{
+    <Loading />
+}
+else
+{
+    <div class="container">
+        <div class="main-body">
+            <div class="row">
+                <VetInfoCard Vet="vet"/>
+                <div class="row">
+                    <VetTabsCard />
+                </div>
+            </div>            
+        </div>        
+    </div>
+}
+
+<style>
+    .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 0 solid transparent;
+        border-radius: .25rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%);
+    }
+
+    .me-2 {
+        margin-right: .5rem !important;
+    }
+</style>
+
+@code {
+    private Vet vet = null!;
+    private ClaimsPrincipal? user;
+
+    public string UserId { get; set; }
+
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await AuthenticationStateTask;
+        var claims = authenticationState.User.Claims.ToList();
+        var userId = claims.FirstOrDefault(x => x.Type == "UserId");
+        if (userId is not null)
+        {
+            UserId = userId.Value;
+        }
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var ok = await LoadClientAsync();        
+    }
+
+    private async Task<bool> LoadClientAsync()
+    {
+        var response = await repository.GetAsync<Vet>($"/api/vets/getvet/{UserId}");
+        if (response.Error)
+        {
+            if (response.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/");
+                return false;
+            }
+
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return false;
+        }
+        vet = response.Response!;
+        return true;
+    }
+    
+}
